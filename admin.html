@@ -67,7 +67,11 @@ body{font-family:'Hiragino Sans',sans-serif;background:#0a1628;min-height:100vh;
 /* 統計 */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;padding:1.25rem}
 .stat-card{background:#fef9ee;border-radius:10px;padding:1rem;text-align:center;border:1px solid #fde68a}
-.stat-label{font-size:.72rem;color:#7a8a9e;margin-bottom:6px}
+.user-table{width:100%;border-collapse:collapse}
+.user-table th{font-size:.75rem;color:#7a8a9e;font-weight:600;padding:.75rem 1rem;text-align:left;border-bottom:1px solid #fef3c7;background:#fef9ee;white-space:nowrap}
+.user-table td{font-size:.82rem;color:#0f1c35;padding:.875rem 1rem;border-bottom:1px solid #fef9ee;white-space:nowrap}
+.user-table tr:last-child td{border-bottom:none}
+.feature-badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:.68rem;font-weight:600;padding:2px 6px;border-radius:4px;margin:1px}
 .stat-value{font-size:1.4rem;font-weight:700;color:#92400e}
 </style>
 </head>
@@ -118,6 +122,14 @@ body{font-family:'Hiragino Sans',sans-serif;background:#0a1628;min-height:100vh;
           <div class="stat-value" id="stat-active">-</div>
         </div>
       </div>
+    </div>
+
+    <!-- ユーザー一覧 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">👤 登録ユーザー一覧</span>
+      </div>
+      <div id="users-list"><div class="empty">読込中...</div></div>
     </div>
 
     <!-- お知らせ・広告管理 -->
@@ -194,6 +206,7 @@ function showAdmin(){
   document.getElementById('login-wrap').style.display='none';
   document.getElementById('admin-wrap').style.display='block';
   loadStats();
+  loadUsers();
   loadContents();
 }
 
@@ -201,6 +214,33 @@ async function adminLogout(){
   await sb.auth.signOut();
   document.getElementById('login-wrap').style.display='flex';
   document.getElementById('admin-wrap').style.display='none';
+}
+
+async function loadUsers(){
+  var {data:profiles}=await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
+  var {data:settings}=await sb.from('user_settings').select('*');
+  var el=document.getElementById('users-list');
+  if(!profiles||profiles.length===0){el.innerHTML='<div class="empty">ユーザーがいません</div>';return;}
+  var rows=profiles.map(p=>{
+    var s=settings&&settings.find(s=>s.user_id===p.id);
+    var features=[];
+    if(s){
+      if(s.feature_tenko) features.push('点呼');
+      if(s.feature_sales) features.push('売上');
+      if(s.feature_work) features.push('勤怠');
+      if(s.feature_delivery) features.push('配送');
+    }
+    var date=p.created_at?new Date(p.created_at).toLocaleDateString('ja-JP'):'';
+    return `<tr>
+      <td>${p.name||'-'}</td>
+      <td>${date}</td>
+      <td>${features.map(f=>`<span class="feature-badge">${f}</span>`).join('')||'-'}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML=`<div style="overflow-x:auto"><table class="user-table">
+    <thead><tr><th>氏名</th><th>登録日</th><th>使用機能</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
 
 async function loadStats(){
