@@ -148,9 +148,8 @@ function getTodayJST(){
   return jst.toISOString().split('T')[0];
 }
 function getMonthRange(){
-  var jst=new Date(currentDate.getTime()+9*60*60*1000);
-  var y=jst.getFullYear();
-  var m=jst.getMonth();
+  var y=currentDate.getFullYear();
+  var m=currentDate.getMonth();
   var from=new Date(y,m,1).toISOString().split('T')[0];
   var to=new Date(y,m+1,0).toISOString().split('T')[0];
   return{from,to,label:y+'年'+(m+1)+'月'};

@@ -151,9 +151,8 @@ function getTodayJST(){
   return jst.toISOString().split('T')[0];
 }
 function getMonthRange(){
-  var jst=new Date(currentDate.getTime()+9*60*60*1000);
-  var y=jst.getFullYear();
-  var m=jst.getMonth();
+  var y=currentDate.getFullYear();
+  var m=currentDate.getMonth();
   return{
     from:new Date(y,m,1).toISOString().split('T')[0],
     to:new Date(y,m+1,0).toISOString().split('T')[0],
