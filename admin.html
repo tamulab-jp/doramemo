@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者画面 — ドラメモ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hiragino Sans',sans-serif;background:#0a1628;min-height:100vh;color:#0f1c35}
+
+/* ログイン画面 */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.login-card{background:#fff;border-radius:16px;padding:2rem 1.5rem;width:100%;max-width:360px}
+.login-title{font-size:1.1rem;font-weight:900;color:#0a1628;margin-bottom:.25rem}
+.login-sub{font-size:.78rem;color:#7a8a9e;margin-bottom:1.5rem}
+.login-label{font-size:.82rem;color:#5a6a82;display:block;margin-bottom:4px;margin-top:.75rem}
+.login-input{width:100%;border:1.5px solid #e2e8f4;border-radius:8px;padding:10px 12px;font-size:.9rem;outline:none}
+.login-input:focus{border-color:#f59e0b}
+.login-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:1.25rem}
+.login-err{font-size:.8rem;color:#991b1b;margin-top:.5rem;text-align:center}
+
+/* 管理画面 */
+.admin-wrap{display:none}
+.header{background:#0a1628;padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
+.header-left{display:flex;align-items:center;gap:.75rem}
+.logo{font-size:1rem;font-weight:900;color:#f59e0b}
+.admin-badge{background:rgba(245,158,11,.2);color:#f59e0b;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px}
+.logout-btn{background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;color:rgba(255,255,255,.7);cursor:pointer}
+
+.main{max-width:800px;margin:0 auto;padding:1.5rem 1rem;background:#f7f4f0;min-height:calc(100vh - 56px)}
+
+.section{background:#fff;border-radius:12px;border:1px solid #fde68a;margin-bottom:1.5rem;overflow:hidden}
+.section-header{padding:1rem 1.25rem;border-bottom:1px solid #fef3c7;display:flex;align-items:center;justify-content:space-between}
+.section-title{font-size:.9rem;font-weight:700;color:#92400e}
+.add-btn{background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:700;cursor:pointer}
+
+.content-item{padding:1rem 1.25rem;border-bottom:1px solid #fef9ee}
+.content-item:last-child{border-bottom:none}
+.content-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem}
+.content-title{font-size:.88rem;font-weight:700;color:#0f1c35}
+.content-body{font-size:.78rem;color:#7a8a9e;line-height:1.6;margin-bottom:.4rem}
+.content-meta{font-size:.72rem;color:#7a8a9e}
+.badge-notice{background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-ad{background:#e8f0fe;color:#1a5cd4;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-on{background:#dcfce7;color:#166534;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-off{background:#f3f4f6;color:#6b7280;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.item-btns{display:flex;gap:.4rem;flex-shrink:0}
+.edit-btn{background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#92400e;cursor:pointer;font-weight:600}
+.del-btn{background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#991b1b;cursor:pointer;font-weight:600}
+.empty{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+
+/* モーダル */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.5rem;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#0f1c35}
+.modal label{font-size:.82rem;color:#5a6a82;display:block;margin-bottom:4px;margin-top:.75rem}
+.modal input,.modal select,.modal textarea{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.88rem;outline:none;color:#0f1c35}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:#f59e0b}
+.modal textarea{resize:vertical;min-height:80px}
+.modal-btns{display:flex;gap:.75rem;margin-top:1.25rem}
+.modal-btns button{flex:1;padding:10px;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer}
+.modal-cancel{background:#f7f9fc;border:1px solid #e2e8f4;color:#5a6a82}
+.modal-submit{background:#f59e0b;border:none;color:#fff}
+.modal-msg{font-size:.8rem;color:#991b1b;margin-top:.5rem;text-align:center}
+
+/* 統計 */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;padding:1.25rem}
+.stat-card{background:#fef9ee;border-radius:10px;padding:1rem;text-align:center;border:1px solid #fde68a}
+.stat-label{font-size:.72rem;color:#7a8a9e;margin-bottom:6px}
+.stat-value{font-size:1.4rem;font-weight:700;color:#92400e}
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div class="login-title">🔐 管理者ログイン</div>
+    <div class="login-sub">ドラメモ管理者専用画面</div>
+    <label class="login-label">メールアドレス</label>
+    <input class="login-input" type="email" id="adm-em" placeholder="管理者メールアドレス">
+    <label class="login-label">パスワード</label>
+    <input class="login-input" type="password" id="adm-pw" placeholder="パスワード">
+    <button class="login-btn" onclick="adminLogin()">ログイン</button>
+    <div class="login-err" id="login-err" style="display:none"></div>
+  </div>
+</div>
+
+<!-- 管理画面 -->
+<div class="admin-wrap" id="admin-wrap">
+  <div class="header">
+    <div class="header-left">
+      <span class="logo">🚚 ドラメモ</span>
+      <span class="admin-badge">管理者</span>
+    </div>
+    <button class="logout-btn" onclick="adminLogout()">ログアウト</button>
+  </div>
+
+  <div class="main">
+
+    <!-- 統計 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">📊 利用状況</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">登録ユーザー数</div>
+          <div class="stat-value" id="stat-users">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">掲載コンテンツ</div>
+          <div class="stat-value" id="stat-contents">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">表示中</div>
+          <div class="stat-value" id="stat-active">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- お知らせ・広告管理 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">📢 お知らせ・広告管理</span>
+        <button class="add-btn" onclick="openModal()">＋ 追加</button>
+      </div>
+      <div id="contents-list"><div class="empty">読込中...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 追加・編集モーダル -->
+<div class="overlay" id="content-modal">
+  <div class="modal">
+    <h2 id="modal-title">コンテンツを追加</h2>
+    <input type="hidden" id="edit-id">
+    <label>種別</label>
+    <select id="c-type">
+      <option value="notice">📢 お知らせ</option>
+      <option value="ad">📣 広告</option>
+    </select>
+    <label>タイトル</label>
+    <input type="text" id="c-title" placeholder="例：新機能のお知らせ">
+    <label>本文</label>
+    <textarea id="c-body" placeholder="表示する内容を入力してください"></textarea>
+    <label>リンクURL（任意）</label>
+    <input type="text" id="c-link" placeholder="https://...">
+    <label>画像URL（広告用・任意）</label>
+    <input type="text" id="c-image" placeholder="https://...">
+    <label>表示順（小さいほど上に表示）</label>
+    <input type="number" id="c-order" value="0" min="0">
+    <label>表示状態</label>
+    <select id="c-active">
+      <option value="true">表示する</option>
+      <option value="false">非表示</option>
+    </select>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-submit" onclick="saveContent()">保存する</button>
+    </div>
+    <div class="modal-msg" id="modal-msg"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var sb=window.supabase.createClient(SURL,SKEY);
+var ADMIN_EMAIL='tamulab.jp@gmail.com';
+
+async function adminLogin(){
+  var em=document.getElementById('adm-em').value.trim();
+  var pw=document.getElementById('adm-pw').value;
+  var err=document.getElementById('login-err');
+  if(!em||!pw){err.textContent='入力してください';err.style.display='block';return;}
+  if(em!==ADMIN_EMAIL){err.textContent='管理者アカウントではありません';err.style.display='block';return;}
+  var {error}=await sb.auth.signInWithPassword({email:em,password:pw});
+  if(error){err.textContent='ログインできませんでした';err.style.display='block';return;}
+  showAdmin();
+}
+
+async function init(){
+  var {data:{session}}=await sb.auth.getSession();
+  if(session&&session.user.email===ADMIN_EMAIL){
+    showAdmin();
+  }
+}
+
+function showAdmin(){
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('admin-wrap').style.display='block';
+  loadStats();
+  loadContents();
+}
+
+async function adminLogout(){
+  await sb.auth.signOut();
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('admin-wrap').style.display='none';
+}
+
+async function loadStats(){
+  var {data:profiles}=await sb.from('user_profiles').select('id');
+  var {data:contents}=await sb.from('admin_contents').select('id,is_active');
+  var total=profiles?profiles.length:0;
+  var cont=contents?contents.length:0;
+  var active=contents?contents.filter(c=>c.is_active).length:0;
+  document.getElementById('stat-users').textContent=total+'人';
+  document.getElementById('stat-contents').textContent=cont+'件';
+  document.getElementById('stat-active').textContent=active+'件';
+}
+
+async function loadContents(){
+  var {data}=await sb.from('admin_contents').select('*').order('sort_order').order('created_at',{ascending:false});
+  var el=document.getElementById('contents-list');
+  if(!data||data.length===0){el.innerHTML='<div class="empty">コンテンツがありません。「＋ 追加」から作成してください。</div>';return;}
+  el.innerHTML=data.map(c=>`
+    <div class="content-item">
+      <div class="content-top">
+        <div>
+          <div class="content-title">
+            <span class="${c.type==='notice'?'badge-notice':'badge-ad'}">${c.type==='notice'?'お知らせ':'広告'}</span>
+            　${c.title||'タイトルなし'}
+            　<span class="${c.is_active?'badge-on':'badge-off'}">${c.is_active?'表示中':'非表示'}</span>
+          </div>
+          <div class="content-body">${c.body||''}</div>
+          ${c.link_url?`<div class="content-meta">🔗 ${c.link_url}</div>`:''}
+          <div class="content-meta">表示順: ${c.sort_order||0}</div>
+        </div>
+        <div class="item-btns">
+          <button class="edit-btn" onclick="openModal('${c.id}','${c.type}','${(c.title||'').replace(/'/g,"\\'")}','${(c.body||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}','${c.link_url||''}','${c.image_url||''}',${c.sort_order||0},${c.is_active})">編集</button>
+          <button class="del-btn" onclick="deleteContent('${c.id}')">削除</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openModal(id,type,title,body,link,image,order,active){
+  document.getElementById('edit-id').value=id||'';
+  document.getElementById('modal-title').textContent=id?'コンテンツを編集':'コンテンツを追加';
+  document.getElementById('c-type').value=type||'notice';
+  document.getElementById('c-title').value=title||'';
+  document.getElementById('c-body').value=(body||'').replace(/\\n/g,'\n');
+  document.getElementById('c-link').value=link||'';
+  document.getElementById('c-image').value=image||'';
+  document.getElementById('c-order').value=order||0;
+  document.getElementById('c-active').value=active===false?'false':'true';
+  document.getElementById('modal-msg').textContent='';
+  document.getElementById('content-modal').classList.add('show');
+}
+
+function closeModal(){document.getElementById('content-modal').classList.remove('show');}
+
+async function saveContent(){
+  var id=document.getElementById('edit-id').value;
+  var data={
+    type:document.getElementById('c-type').value,
+    title:document.getElementById('c-title').value.trim(),
+    body:document.getElementById('c-body').value.trim(),
+    link_url:document.getElementById('c-link').value.trim()||null,
+    image_url:document.getElementById('c-image').value.trim()||null,
+    sort_order:parseInt(document.getElementById('c-order').value)||0,
+    is_active:document.getElementById('c-active').value==='true',
+    updated_at:new Date().toISOString(),
+  };
+  var msg=document.getElementById('modal-msg');
+  if(!data.title){msg.textContent='タイトルを入力してください';return;}
+  var error;
+  if(id){
+    var res=await sb.from('admin_contents').update(data).eq('id',id);
+    error=res.error;
+  } else {
+    var res2=await sb.from('admin_contents').insert(data);
+    error=res2.error;
+  }
+  if(error){msg.textContent='エラー: '+error.message;return;}
+  closeModal();
+  loadContents();
+  loadStats();
+}
+
+async function deleteContent(id){
+  if(!confirm('削除しますか？')){return;}
+  await sb.from('admin_contents').delete().eq('id',id);
+  loadContents();
+  loadStats();
+}
+
+init();
+</script>
+</body>
+</html>

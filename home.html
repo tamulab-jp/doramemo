@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドラメモ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;color:#0f1c35}
+.header{background:#f59e0b;padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:.75rem}
+.logo{font-size:1.1rem;font-weight:900;color:#fff;letter-spacing:-1px}
+.logo-icon{font-size:1.2rem}
+.user-name{font-size:.78rem;color:rgba(255,255,255,.8)}
+.setting-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 12px;font-size:.78rem;color:#fff;cursor:pointer}
+.logout-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 12px;font-size:.78rem;color:#fff;cursor:pointer}
+
+.main{max-width:480px;margin:0 auto;padding:1rem}
+
+/* お知らせ */
+.notice-area{margin-bottom:1rem}
+.notice-card{background:#fff;border-radius:12px;border-left:4px solid #f59e0b;padding:.875rem 1rem;margin-bottom:.5rem}
+.notice-title{font-size:.82rem;font-weight:700;color:#92400e;margin-bottom:3px}
+.notice-body{font-size:.78rem;color:#7a8a9e;line-height:1.6}
+
+/* 広告 */
+.ad-area{margin-bottom:1rem}
+.ad-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f4}
+.ad-img{width:100%;height:120px;object-fit:cover;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#92400e}
+.ad-body{padding:.875rem 1rem}
+.ad-title{font-size:.85rem;font-weight:700;margin-bottom:4px}
+.ad-desc{font-size:.78rem;color:#7a8a9e;line-height:1.5}
+.ad-link{display:inline-block;margin-top:.5rem;font-size:.78rem;color:#f59e0b;font-weight:700;text-decoration:none}
+
+/* 機能グリッド */
+.section-title{font-size:.78rem;font-weight:700;color:#7a8a9e;margin-bottom:.75rem;letter-spacing:1px}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+.feature-card{background:#fff;border-radius:14px;padding:1.25rem;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1.5px solid transparent}
+.feature-card:hover{transform:translateY(-2px);border-color:#f59e0b}
+.feature-card:active{transform:scale(.97)}
+.feature-icon{font-size:2rem;margin-bottom:.75rem}
+.feature-name{font-size:.9rem;font-weight:700;color:#0f1c35;margin-bottom:3px}
+.feature-desc{font-size:.72rem;color:#7a8a9e}
+
+/* 設定モーダル */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:1.5rem;width:90%;max-width:360px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:1rem;font-weight:700;margin-bottom:1.25rem}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid #f0f4fa}
+.toggle-row:last-of-type{border-bottom:none}
+.toggle-label{font-size:.9rem;font-weight:600}
+.toggle-desc{font-size:.75rem;color:#7a8a9e;margin-top:2px}
+.switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#e2e8f4;border-radius:24px;cursor:pointer;transition:.3s}
+.slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+input:checked+.slider{background:#f59e0b}
+input:checked+.slider:before{transform:translateX(20px)}
+.modal-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:1rem}
+.modal-cancel{width:100%;background:#f7f9fc;color:#5a6a82;border:1px solid #e2e8f4;border-radius:8px;padding:10px;font-size:.88rem;font-weight:600;cursor:pointer;margin-top:.5rem}
+.loading{padding:3rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <span class="logo-icon">🚚</span>
+    <div>
+      <div class="logo">ドラメモ</div>
+      <div class="user-name" id="user-name">読込中...</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:.5rem">
+    <button class="setting-btn" onclick="openSetting()">⚙️</button>
+    <button class="logout-btn" onclick="logout()">ログアウト</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- お知らせ -->
+  <div class="notice-area" id="notice-area"></div>
+
+  <!-- 広告 -->
+  <div class="ad-area" id="ad-area"></div>
+
+  <!-- 機能メニュー -->
+  <div class="section-title">メニュー</div>
+  <div class="feature-grid" id="feature-grid">
+    <div class="loading">読込中...</div>
+  </div>
+
+</div>
+
+<!-- 機能設定モーダル -->
+<div class="overlay" id="setting-modal">
+  <div class="modal">
+    <h2>⚙️ 使う機能を選ぶ</h2>
+    <div class="toggle-row">
+      <div><div class="toggle-label">📋 点呼記録</div><div class="toggle-desc">毎日の点呼を記録</div></div>
+      <label class="switch"><input type="checkbox" id="s-tenko" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">💰 売上・経費</div><div class="toggle-desc">収支を簡単管理</div></div>
+      <label class="switch"><input type="checkbox" id="s-sales"><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">⏰ 勤怠管理</div><div class="toggle-desc">稼働時間を記録</div></div>
+      <label class="switch"><input type="checkbox" id="s-work"><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">📦 配送管理</div><div class="toggle-desc">配送件数を記録</div></div>
+      <label class="switch"><input type="checkbox" id="s-delivery"><span class="slider"></span></label>
+    </div>
+    <button class="modal-btn" onclick="saveSetting()">保存する</button>
+    <button class="modal-cancel" onclick="closeSetting()">キャンセル</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var sb=window.supabase.createClient(SURL,SKEY);
+var userId=null;
+var settings=null;
+
+async function init(){
+  var {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  userId=session.user.id;
+
+  var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
+  document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
+
+  var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
+  if(!s){
+    await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
+    settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false};
+  } else {
+    settings=s;
+  }
+
+  loadAdminContents();
+  renderFeatures();
+}
+
+async function loadAdminContents(){
+  var {data:contents}=await sb.from('admin_contents').select('*').eq('is_active',true).order('sort_order');
+  if(!contents||contents.length===0) return;
+
+  var notices=contents.filter(c=>c.type==='notice');
+  var ads=contents.filter(c=>c.type==='ad');
+
+  var noticeArea=document.getElementById('notice-area');
+  notices.forEach(n=>{
+    noticeArea.innerHTML+=`<div class="notice-card">
+      <div class="notice-title">📢 ${n.title||'お知らせ'}</div>
+      <div class="notice-body">${n.body||''}</div>
+    </div>`;
+  });
+
+  var adArea=document.getElementById('ad-area');
+  ads.forEach(a=>{
+    adArea.innerHTML+=`<div class="ad-card">
+      ${a.image_url?`<img src="${a.image_url}" style="width:100%;height:120px;object-fit:cover">`:
+      `<div class="ad-img">📣 広告スペース</div>`}
+      <div class="ad-body">
+        <div class="ad-title">${a.title||''}</div>
+        <div class="ad-desc">${a.body||''}</div>
+        ${a.link_url?`<a href="${a.link_url}" class="ad-link" target="_blank">詳しく見る →</a>`:''}
+      </div>
+    </div>`;
+  });
+}
+
+function renderFeatures(){
+  var features=[
+    {key:'feature_tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
+    {key:'feature_sales',icon:'💰',name:'売上・経費',desc:'収支を簡単管理',url:'sales.html'},
+    {key:'feature_work',icon:'⏰',name:'勤怠管理',desc:'稼働時間を記録',url:'work.html'},
+    {key:'feature_delivery',icon:'📦',name:'配送管理',desc:'配送件数を記録',url:'delivery.html'},
+  ];
+
+  var active=features.filter(f=>settings[f.key]);
+  var grid=document.getElementById('feature-grid');
+
+  if(active.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#7a8a9e;font-size:.85rem">⚙️ 右上のボタンから使う機能を選んでください</div>';
+    return;
+  }
+
+  grid.innerHTML=active.map(f=>`
+    <div class="feature-card" onclick="window.location.href='${f.url}'">
+      <div class="feature-icon">${f.icon}</div>
+      <div class="feature-name">${f.name}</div>
+      <div class="feature-desc">${f.desc}</div>
+    </div>
+  `).join('');
+}
+
+function openSetting(){
+  document.getElementById('s-tenko').checked=settings.feature_tenko;
+  document.getElementById('s-sales').checked=settings.feature_sales;
+  document.getElementById('s-work').checked=settings.feature_work;
+  document.getElementById('s-delivery').checked=settings.feature_delivery;
+  document.getElementById('setting-modal').classList.add('show');
+}
+function closeSetting(){document.getElementById('setting-modal').classList.remove('show');}
+
+async function saveSetting(){
+  var newSettings={
+    feature_tenko:document.getElementById('s-tenko').checked,
+    feature_sales:document.getElementById('s-sales').checked,
+    feature_work:document.getElementById('s-work').checked,
+    feature_delivery:document.getElementById('s-delivery').checked,
+  };
+  await sb.from('user_settings').update(newSettings).eq('user_id',userId);
+  settings=Object.assign(settings,newSettings);
+  closeSetting();
+  renderFeatures();
+}
+
+async function logout(){await sb.auth.signOut();window.location.href='index.html';}
+init();
+</script>
+</body>
+</html>
