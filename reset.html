@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>パスワードリセット — ドラメモ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hiragino Sans',sans-serif;background:#0a1628;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.card{background:#fff;border-radius:16px;padding:2rem 1.5rem;width:100%;max-width:360px}
+.logo{text-align:center;margin-bottom:1.75rem}
+.logo-icon{font-size:2.5rem;margin-bottom:.5rem}
+.logo-title{font-size:1.4rem;font-weight:900;color:#0a1628;letter-spacing:-1px}
+.logo-sub{font-size:.78rem;color:#7a8a9e;margin-top:2px}
+.desc{font-size:.82rem;color:#5a6a82;line-height:1.7;margin-bottom:1.25rem;text-align:center}
+label{font-size:.82rem;color:#5a6a82;display:block;margin-bottom:4px;margin-top:.75rem}
+input{width:100%;border:1.5px solid #e2e8f4;border-radius:8px;padding:10px 12px;font-size:.9rem;color:#0f1c35;outline:none;transition:border-color .2s}
+input:focus{border-color:#f59e0b}
+.btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:1.25rem;transition:background .2s}
+.btn:hover{background:#d97706}
+.btn:disabled{opacity:.6}
+.msg{font-size:.82rem;margin-top:.75rem;text-align:center;padding:.5rem;border-radius:6px}
+.err{color:#991b1b;background:#fee2e2}
+.ok{color:#166534;background:#dcfce7}
+.back{font-size:.82rem;color:#f59e0b;text-align:center;margin-top:1rem;cursor:pointer;font-weight:600}
+
+/* パスワード再設定フォーム（リセットリンクから戻った時） */
+.new-pw-section{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🚚</div>
+    <div class="logo-title">ドラメモ</div>
+    <div class="logo-sub" id="page-sub">パスワードをリセット</div>
+  </div>
+
+  <!-- ① メール送信フォーム -->
+  <div id="send-section">
+    <div class="desc">登録したメールアドレスを入力してください。<br>パスワード再設定用のリンクをお送りします。</div>
+    <label>メールアドレス</label>
+    <input type="email" id="em" placeholder="example@email.com">
+    <button class="btn" id="send-btn" onclick="sendReset()">リセットメールを送信</button>
+    <div class="msg" id="send-msg" style="display:none"></div>
+    <div class="back" onclick="window.location.href='index.html'">← ログインに戻る</div>
+  </div>
+
+  <!-- ② 新しいパスワード設定フォーム（リセットリンクから来た時） -->
+  <div id="new-pw-section" class="new-pw-section">
+    <div class="desc">新しいパスワードを入力してください。</div>
+    <label>新しいパスワード</label>
+    <input type="password" id="new-pw" placeholder="8文字以上">
+    <label>パスワード（確認）</label>
+    <input type="password" id="new-pw2" placeholder="もう一度入力">
+    <button class="btn" id="update-btn" onclick="updatePassword()">パスワードを変更する</button>
+    <div class="msg" id="update-msg" style="display:none"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var sb=window.supabase.createClient(SURL,SKEY);
+
+async function init(){
+  // リセットリンクから来た場合（URLにtokenが含まれる）
+  var hash=window.location.hash;
+  if(hash&&hash.includes('type=recovery')){
+    document.getElementById('send-section').style.display='none';
+    document.getElementById('new-pw-section').style.display='block';
+    document.getElementById('page-sub').textContent='新しいパスワードを設定';
+    return;
+  }
+
+  // セッションのtype確認（Supabaseがセッションを自動で処理した場合）
+  var {data:{session}}=await sb.auth.getSession();
+  if(session&&session.user){
+    var params=new URLSearchParams(window.location.search);
+    if(params.get('type')==='recovery'||hash.includes('recovery')){
+      document.getElementById('send-section').style.display='none';
+      document.getElementById('new-pw-section').style.display='block';
+      document.getElementById('page-sub').textContent='新しいパスワードを設定';
+    }
+  }
+}
+
+async function sendReset(){
+  var em=document.getElementById('em').value.trim();
+  var btn=document.getElementById('send-btn');
+  var msg=document.getElementById('send-msg');
+  if(!em){showMsg(msg,'メールアドレスを入力してください','err');return;}
+  btn.disabled=true;
+  var {error}=await sb.auth.resetPasswordForEmail(em,{
+    redirectTo:window.location.origin+window.location.pathname
+  });
+  if(error){
+    showMsg(msg,'エラー: '+error.message,'err');
+    btn.disabled=false;
+    return;
+  }
+  showMsg(msg,'送信しました！メールをご確認ください。','ok');
+  document.getElementById('em').value='';
+  btn.disabled=false;
+}
+
+async function updatePassword(){
+  var pw=document.getElementById('new-pw').value;
+  var pw2=document.getElementById('new-pw2').value;
+  var btn=document.getElementById('update-btn');
+  var msg=document.getElementById('update-msg');
+  if(!pw||pw.length<8){showMsg(msg,'8文字以上のパスワードを入力してください','err');return;}
+  if(pw!==pw2){showMsg(msg,'パスワードが一致しません','err');return;}
+  btn.disabled=true;
+  var {error}=await sb.auth.updateUser({password:pw});
+  if(error){
+    showMsg(msg,'エラー: '+error.message,'err');
+    btn.disabled=false;
+    return;
+  }
+  showMsg(msg,'パスワードを変更しました！ログイン画面へ移動します…','ok');
+  setTimeout(()=>{window.location.href='index.html';},2500);
+}
+
+function showMsg(el,text,type){
+  el.textContent=text;
+  el.className='msg '+type;
+  el.style.display='block';
+}
+
+init();
+</script>
+</body>
+</html>
