@@ -127,31 +127,23 @@ var userId=null;
 var settings=null;
 
 async function init(){
-  try{
-    var {data:{session}}=await sb.auth.getSession();
-    if(!session){window.location.href='index.html';return;}
-    userId=session.user.id;
+  var {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  userId=session.user.id;
 
-    var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
-    document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
+  var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
+  document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
 
-    var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
-    if(!s){
-      await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
-      settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false};
-    } else {
-      settings=s;
-    }
-
-    loadAdminContents();
-    renderFeatures();
-  } catch(e){
-    // エラー時はデフォルト設定で表示
-    console.error('init error:',e);
+  var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
+  if(!s){
+    await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
     settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false};
-    document.getElementById('user-name').textContent='';
-    renderFeatures();
+  } else {
+    settings=s;
   }
+
+  loadAdminContents();
+  renderFeatures();
 }
 
 async function loadAdminContents(){
@@ -166,6 +158,7 @@ async function loadAdminContents(){
     noticeArea.innerHTML+=`<div class="notice-card">
       <div class="notice-title">📢 ${n.title||'お知らせ'}</div>
       <div class="notice-body">${n.body||''}</div>
+      ${n.link_url?`<a href="${n.link_url}" style="display:inline-block;margin-top:.5rem;font-size:.78rem;color:#f59e0b;font-weight:700;text-decoration:none;" target="_blank">詳しく見る →</a>`:''}
     </div>`;
   });
 
