@@ -127,23 +127,31 @@ var userId=null;
 var settings=null;
 
 async function init(){
-  var {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='index.html';return;}
-  userId=session.user.id;
+  try{
+    var {data:{session}}=await sb.auth.getSession();
+    if(!session){window.location.href='index.html';return;}
+    userId=session.user.id;
 
-  var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
-  document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
+    var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
+    document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
 
-  var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
-  if(!s){
-    await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
+    var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
+    if(!s){
+      await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
+      settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false};
+    } else {
+      settings=s;
+    }
+
+    loadAdminContents();
+    renderFeatures();
+  } catch(e){
+    // エラー時はデフォルト設定で表示
+    console.error('init error:',e);
     settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false};
-  } else {
-    settings=s;
+    document.getElementById('user-name').textContent='';
+    renderFeatures();
   }
-
-  loadAdminContents();
-  renderFeatures();
 }
 
 async function loadAdminContents(){
