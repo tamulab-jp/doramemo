@@ -113,7 +113,7 @@ input:focus,select:focus{border-color:#f59e0b}
       <option value="その他">その他</option>
     </select>
     <label>金額（円）</label>
-    <input type="text" inputmode="decimal" id="amount" placeholder="例：15000" min="0">
+    <input type="number" id="amount" placeholder="例：15000" min="0">
     <label>日付</label>
     <input type="text" id="rec-date" placeholder="例：2026-05-30">
     <label>メモ</label>
@@ -260,5 +260,7 @@ function showMsg(text,type){
 
 init();
 </script>
+
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1</div>
 </body>
 </html>
