@@ -71,23 +71,6 @@ textarea{resize:vertical;min-height:70px}
 .badge.done{background:#dcfce7;color:#166534}
 .empty{padding:1.5rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
-.mic-row{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem}
-.mic-row input{margin-bottom:0;flex:1}
-.mic-btn{background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:10px 12px;font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:background .2s}
-.mic-btn.listening{background:#fee2e2;border-color:#e24b4a;animation:pulse .8s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.mic-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0f1c35;color:#fff;padding:.5rem 1.25rem;border-radius:20px;font-size:.82rem;z-index:999;opacity:0;transition:opacity .3s}
-.mic-toast.show{opacity:1}
-.month-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1rem;background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.875rem}
-.month-btn{background:#fef3c7;border:none;border-radius:6px;padding:5px 12px;font-size:.85rem;cursor:pointer;color:#92400e;font-weight:700}
-.month-label{font-size:.9rem;font-weight:700}
-.records-section{background:#fff;border-radius:12px;border:1px solid #fde68a;overflow:hidden;margin-bottom:1rem}
-.records-header{padding:.875rem 1.25rem;border-bottom:1px solid #fef3c7;font-size:.85rem;font-weight:700;color:#92400e;display:flex;justify-content:space-between;align-items:center}
-.record-item{padding:.875rem 1.25rem;border-bottom:1px solid #fef9ee}
-.record-item:last-child{border-bottom:none}
-.record-date{font-size:.82rem;font-weight:700;color:#0f1c35;margin-bottom:4px}
-.record-detail{font-size:.75rem;color:#7a8a9e;line-height:1.8}
-.csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -126,18 +109,16 @@ textarea{resize:vertical;min-height:70px}
       </div>
     </div>
 
-    <label>アルコール検知値（mg/L）</label>
-    <div class="mic-row">
-      <input type="number" id="alcohol-val" placeholder="0.00" step="0.01" min="0" oninput="checkAlcohol()">
-      <button class="mic-btn" id="mic-alc" onclick="startMic('alcohol-val','mic-alc',checkAlcohol)" title="音声入力">🎤</button>
-      <span class="alc-badge ok" id="alc-badge">正常</span>
+    <div class="alcohol-row">
+      <div>
+        <label>アルコール検知値（mg/L）</label>
+        <input type="text" inputmode="decimal" id="alcohol-val" placeholder="0.00" step="0.01" min="0" oninput="checkAlcohol()">
+      </div>
+      <div><span class="alc-badge ok" id="alc-badge">正常</span></div>
     </div>
 
     <label>メーター値（km）</label>
-    <div class="mic-row">
-      <input type="number" id="meter-val" placeholder="例：12345">
-      <button class="mic-btn" id="mic-meter" onclick="startMic('meter-val','mic-meter',null)" title="音声入力">🎤</button>
-    </div>
+    <input type="text" inputmode="decimal" id="meter-val" placeholder="例：12345">
 
     <label>健康状態</label>
     <div class="radio-group">
@@ -164,68 +145,10 @@ textarea{resize:vertical;min-height:70px}
     <div class="today-header">今日の点呼記録</div>
     <div id="today-list"><div class="loading">読込中...</div></div>
   </div>
-
-  <!-- 月別記録 -->
-  <div class="month-nav">
-    <button class="month-btn" onclick="changeMonth(-1)">◀</button>
-    <span class="month-label" id="month-label">-</span>
-    <button class="month-btn" onclick="changeMonth(1)">▶</button>
-  </div>
-  <div class="records-section">
-    <div class="records-header">
-      <span>月別点呼記録</span>
-      <button class="csv-btn" onclick="exportCSV()">CSV出力</button>
-    </div>
-    <div id="month-list"><div class="loading">読込中...</div></div>
-  </div>
 </div>
 
-<div class="mic-toast" id="mic-toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Web Speech API マイク入力
-function startMic(inputId, btnId, callback){
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){showToast('音声認識はこのブラウザでは使えません');return;}
-  var btn=document.getElementById(btnId);
-  var input=document.getElementById(inputId);
-  var recognition=new SR();
-  recognition.lang='ja-JP';
-  recognition.interimResults=false;
-  recognition.maxAlternatives=1;
-  btn.classList.add('listening');
-  showToast('話しかけてください...');
-  recognition.start();
-  recognition.onresult=function(e){
-    var transcript=e.results[0][0].transcript;
-    var num=transcript.replace(/[^0-9.]/g,'');
-    if(num){
-      input.value=num;
-      input.dispatchEvent(new Event('input'));
-      if(callback) callback();
-      showToast('「'+transcript+'」→ '+num);
-    } else {
-      showToast('数字が認識できませんでした');
-    }
-    btn.classList.remove('listening');
-  };
-  recognition.onerror=function(e){
-    showToast('エラー: '+e.error);
-    btn.classList.remove('listening');
-  };
-  recognition.onend=function(){
-    btn.classList.remove('listening');
-  };
-}
-
-function showToast(msg){
-  var el=document.getElementById('mic-toast');
-  el.textContent=msg;
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t=setTimeout(()=>el.classList.remove('show'),2500);
-}
-
 var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
 var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
 var sb=window.supabase.createClient(SURL,SKEY);
@@ -234,72 +157,6 @@ var tenkoType='before';
 var healthStatus='良好';
 var fatigueStatus='問題なし';
 var todayRecords={before:null,after:null};
-var currentDate=new Date();
-var monthRecords=[];
-
-function getMonthRange(){
-  var y=currentDate.getFullYear();
-  var m=currentDate.getMonth();
-  return{
-    from:new Date(y,m,1).toISOString().split('T')[0],
-    to:new Date(y,m+1,0).toISOString().split('T')[0],
-    label:y+'年'+(m+1)+'月'
-  };
-}
-
-function changeMonth(d){
-  currentDate.setMonth(currentDate.getMonth()+d);
-  var range=getMonthRange();
-  document.getElementById('month-label').textContent=range.label;
-  loadMonthRecords();
-}
-
-async function loadMonthRecords(){
-  var {from,to}=getMonthRange();
-  var {data}=await sb.from('tenko_records').select('*').eq('user_id',userId).gte('date',from).lte('date',to).order('date',{ascending:false});
-  monthRecords=data||[];
-  renderMonthList();
-}
-
-function renderMonthList(){
-  var el=document.getElementById('month-list');
-  if(monthRecords.length===0){el.innerHTML='<div class="empty">記録がありません</div>';return;}
-  // 日付でグループ化
-  var grouped={};
-  monthRecords.forEach(r=>{
-    if(!grouped[r.date]) grouped[r.date]=[];
-    grouped[r.date].push(r);
-  });
-  el.innerHTML=Object.keys(grouped).sort().reverse().map(date=>{
-    var items=grouped[date];
-    var details=items.map(r=>{
-      var typeBadge=r.tenko_type==='乗務前'?'<span class="badge before">乗務前</span>':'<span class="badge after">乗務後</span>';
-      var time=r.created_at?new Date(r.created_at).toLocaleString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'-';
-      return `${typeBadge} アルコール:${r.alcohol_value||0} 健康:${r.health_status||'-'} 疲労:${r.fatigue_status||'-'} ${time}`;
-    }).join('<br>');
-    return `<div class="record-item">
-      <div class="record-date">${date}</div>
-      <div class="record-detail">${details}</div>
-    </div>`;
-  }).join('');
-}
-
-function exportCSV(){
-  if(monthRecords.length===0){alert('データがありません');return;}
-  var headers=['日付','種別','アルコール(mg/L)','メーター(km)','健康状態','疲労・睡眠','特記事項','送信時刻'];
-  var rows=monthRecords.map(r=>{
-    var time=r.created_at?new Date(r.created_at).toLocaleString('ja-JP'):'';
-    return[r.date,r.tenko_type,r.alcohol_value||0,r.meter_value||'',r.health_status||'',r.fatigue_status||'',r.notes||'',time]
-      .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
-  });
-  var {label}=getMonthRange();
-  var csv='\uFEFF'+headers.join(',')+'\n'+rows.join('\n');
-  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='点呼記録_'+label+'.csv';a.click();
-  URL.revokeObjectURL(url);
-}
 
 function getTodayJST(){
   var jst=new Date(new Date().getTime()+9*60*60*1000);
@@ -310,10 +167,7 @@ async function init(){
   var {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='index.html';return;}
   userId=session.user.id;
-  var range=getMonthRange();
-  document.getElementById('month-label').textContent=range.label;
   loadToday();
-  loadMonthRecords();
 }
 
 async function loadToday(){
@@ -382,11 +236,23 @@ async function submitTenko(){
   var ttype=tenkoType==='before'?'乗務前':'乗務後';
   var existing=tenkoType==='before'?todayRecords.before:todayRecords.after;
 
+  // バリデーション
+  var alcVal=document.getElementById('alcohol-val').value.trim();
+  var meterVal=document.getElementById('meter-val').value.trim();
+  if(alcVal&&!/^[0-9.]+$/.test(alcVal)){
+    showMsg('アルコール検知値は半角数字で入力してください','err');
+    document.getElementById('alcohol-val').value='';btn.disabled=false;return;
+  }
+  if(meterVal&&!/^[0-9.]+$/.test(meterVal)){
+    showMsg('メーター値は半角数字で入力してください','err');
+    document.getElementById('meter-val').value='';btn.disabled=false;return;
+  }
+
   var record={
     tenko_type:ttype,
     method:'セルフ',
-    alcohol_value:parseFloat(document.getElementById('alcohol-val').value)||0,
-    meter_value:parseInt(document.getElementById('meter-val').value)||null,
+    alcohol_value:parseFloat(alcVal)||0,
+    meter_value:parseInt(meterVal)||null,
     health_status:healthStatus,
     fatigue_status:fatigueStatus,
     notes:document.getElementById('notes').value,
@@ -422,7 +288,5 @@ async function submitTenko(){
 
 init();
 </script>
-
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.2.2</div>
 </body>
 </html>

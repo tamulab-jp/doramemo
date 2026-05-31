@@ -62,13 +62,6 @@ input:focus,select:focus{border-color:#f59e0b}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 
 .csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
-.mic-row{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem}
-.mic-row input{margin-bottom:0;flex:1}
-.mic-btn{background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:10px 12px;font-size:1.1rem;cursor:pointer;flex-shrink:0}
-.mic-btn.listening{background:#fee2e2;border-color:#e24b4a;animation:pulse .8s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.mic-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0f1c35;color:#fff;padding:.5rem 1.25rem;border-radius:20px;font-size:.82rem;z-index:999;opacity:0;transition:opacity .3s}
-.mic-toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -120,10 +113,7 @@ input:focus,select:focus{border-color:#f59e0b}
       <option value="その他">その他</option>
     </select>
     <label>金額（円）</label>
-    <div class="mic-row">
-      <input type="number" id="amount" placeholder="例：15000" min="0">
-      <button class="mic-btn" id="mic-amount" onclick="startMic('amount','mic-amount',null)" title="音声入力">🎤</button>
-    </div>
+    <input type="text" inputmode="decimal" id="amount" placeholder="例：15000" min="0">
     <label>日付</label>
     <input type="text" id="rec-date" placeholder="例：2026-05-30">
     <label>メモ</label>
@@ -143,33 +133,8 @@ input:focus,select:focus{border-color:#f59e0b}
 
 </div>
 
-<div class="mic-toast" id="mic-toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-function startMic(inputId,btnId,callback){
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){showToast('音声認識はこのブラウザでは使えません');return;}
-  var btn=document.getElementById(btnId);
-  var input=document.getElementById(inputId);
-  var recognition=new SR();
-  recognition.lang='ja-JP';recognition.interimResults=false;
-  btn.classList.add('listening');showToast('話しかけてください...');
-  recognition.start();
-  recognition.onresult=function(e){
-    var t=e.results[0][0].transcript;
-    var num=t.replace(/[^0-9.]/g,'');
-    if(num){input.value=num;input.dispatchEvent(new Event('input'));if(callback)callback();showToast('「'+t+'」→ '+num);}
-    else showToast('数字が認識できませんでした');
-    btn.classList.remove('listening');
-  };
-  recognition.onerror=function(e){showToast('エラー: '+e.error);btn.classList.remove('listening');};
-  recognition.onend=function(){btn.classList.remove('listening');};
-}
-function showToast(msg){
-  var el=document.getElementById('mic-toast');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);
-}
 var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
 var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
 var sb=window.supabase.createClient(SURL,SKEY);
@@ -295,7 +260,5 @@ function showMsg(text,type){
 
 init();
 </script>
-
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.2</div>
 </body>
 </html>
