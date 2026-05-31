@@ -240,9 +240,7 @@ function exportCSV(){
       .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
   });
   var {label}=getMonthRange();
-  var csv='﻿'+headers.join(',')+'
-'+rows.join('
-');
+  var csv='\uFEFF'+headers.join(',')+'\n'+rows.join('\n');
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
