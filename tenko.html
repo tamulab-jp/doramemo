@@ -71,6 +71,16 @@ textarea{resize:vertical;min-height:70px}
 .badge.done{background:#dcfce7;color:#166534}
 .empty{padding:1.5rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1rem;background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.875rem}
+.month-btn{background:#fef3c7;border:none;border-radius:6px;padding:5px 12px;font-size:.85rem;cursor:pointer;color:#92400e;font-weight:700}
+.month-label{font-size:.9rem;font-weight:700}
+.records-section{background:#fff;border-radius:12px;border:1px solid #fde68a;overflow:hidden;margin-bottom:1rem}
+.records-header{padding:.875rem 1.25rem;border-bottom:1px solid #fef3c7;font-size:.85rem;font-weight:700;color:#92400e;display:flex;justify-content:space-between;align-items:center}
+.record-item{padding:.875rem 1.25rem;border-bottom:1px solid #fef9ee}
+.record-item:last-child{border-bottom:none}
+.record-date{font-size:.82rem;font-weight:700;color:#0f1c35;margin-bottom:4px}
+.record-detail{font-size:.75rem;color:#7a8a9e;line-height:1.8}
+.csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -145,6 +155,19 @@ textarea{resize:vertical;min-height:70px}
     <div class="today-header">今日の点呼記録</div>
     <div id="today-list"><div class="loading">読込中...</div></div>
   </div>
+
+  <div class="month-nav">
+    <button class="month-btn" onclick="changeMonth(-1)">◀</button>
+    <span class="month-label" id="month-label">-</span>
+    <button class="month-btn" onclick="changeMonth(1)">▶</button>
+  </div>
+  <div class="records-section">
+    <div class="records-header">
+      <span>月別点呼記録</span>
+      <button class="csv-btn" onclick="exportCSV()">CSV出力</button>
+    </div>
+    <div id="month-list"><div class="loading">読込中...</div></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -157,6 +180,70 @@ var tenkoType='before';
 var healthStatus='良好';
 var fatigueStatus='問題なし';
 var todayRecords={before:null,after:null};
+var currentDate=new Date();
+var monthRecords=[];
+
+function getMonthRange(){
+  var y=currentDate.getFullYear();
+  var m=currentDate.getMonth();
+  return{
+    from:new Date(y,m,1).toISOString().split('T')[0],
+    to:new Date(y,m+1,0).toISOString().split('T')[0],
+    label:y+'年'+(m+1)+'月'
+  };
+}
+
+function changeMonth(d){
+  currentDate.setMonth(currentDate.getMonth()+d);
+  var range=getMonthRange();
+  document.getElementById('month-label').textContent=range.label;
+  loadMonthRecords();
+}
+
+async function loadMonthRecords(){
+  var {from,to}=getMonthRange();
+  var {data}=await sb.from('tenko_records').select('*').eq('user_id',userId).gte('date',from).lte('date',to).order('date',{ascending:false});
+  monthRecords=data||[];
+  renderMonthList();
+}
+
+function renderMonthList(){
+  var el=document.getElementById('month-list');
+  if(monthRecords.length===0){el.innerHTML='<div class="empty">記録がありません</div>';return;}
+  var grouped={};
+  monthRecords.forEach(r=>{
+    if(!grouped[r.date]) grouped[r.date]=[];
+    grouped[r.date].push(r);
+  });
+  el.innerHTML=Object.keys(grouped).sort().reverse().map(date=>{
+    var items=grouped[date];
+    var details=items.map(r=>{
+      var typeBadge=r.tenko_type==='乗務前'?'<span class="badge before">乗務前</span>':'<span class="badge after">乗務後</span>';
+      var timeVal=r.updated_at||r.created_at;
+      var time=timeVal?new Date(timeVal).toLocaleString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'-';
+      return typeBadge+' アルコール:'+( r.alcohol_value||0)+' 健康:'+(r.health_status||'-')+' 疲労:'+(r.fatigue_status||'-')+' '+time;
+    }).join('<br>');
+    return '<div class="record-item"><div class="record-date">'+date+'</div><div class="record-detail">'+details+'</div></div>';
+  }).join('');
+}
+
+function exportCSV(){
+  if(monthRecords.length===0){alert('データがありません');return;}
+  var headers=['日付','種別','アルコール(mg/L)','メーター(km)','健康状態','疲労・睡眠','特記事項','送信時刻'];
+  var rows=monthRecords.map(r=>{
+    var timeVal=r.updated_at||r.created_at;
+    var time=timeVal?new Date(timeVal).toLocaleString('ja-JP'):'';
+    return[r.date,r.tenko_type,r.alcohol_value||0,r.meter_value||'',r.health_status||'',r.fatigue_status||'',r.notes||'',time]
+      .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
+  });
+  var {label}=getMonthRange();
+  var csv='\uFEFF'+headers.join(',')+'\n'+rows.join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='点呼記録_'+label+'.csv';a.click();
+  URL.revokeObjectURL(url);
+}
 
 function getTodayJST(){
   var jst=new Date(new Date().getTime()+9*60*60*1000);
@@ -167,7 +254,10 @@ async function init(){
   var {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='index.html';return;}
   userId=session.user.id;
+  var range=getMonthRange();
+  document.getElementById('month-label').textContent=range.label;
   loadToday();
+  loadMonthRecords();
 }
 
 async function loadToday(){
