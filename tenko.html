@@ -12,53 +12,53 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .back-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 12px;font-size:.78rem;color:#fff;cursor:pointer}
 .main{max-width:480px;margin:0 auto;padding:1rem}
 
-.status-bar{background:#fff;border-radius:12px;border:1px solid #fde68a;padding:1rem 1.25rem;margin-bottom:1rem}
-.status-title{font-size:.75rem;font-weight:700;color:#92400e;margin-bottom:.75rem}
-.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.status-item{text-align:center;padding:.75rem;border-radius:8px;background:#f7f4f0}
-.status-item.done{background:#dcfce7}
-.status-item.pending{background:#fef3c7}
-.status-label{font-size:.72rem;color:#7a8a9e;margin-bottom:4px}
-.status-value{font-size:.85rem;font-weight:700}
-.status-item.done .status-value{color:#166534}
-.status-item.pending .status-value{color:#92400e}
+/* 今日の状況バッジ */
+.today-status{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.5rem}
+.badge-d{font-size:.78rem;padding:6px 14px;border-radius:20px;font-weight:700;border:1.5px solid}
+.badge-d.done{border-color:#166534;color:#166534;background:#dcfce7}
+.badge-d.pending{border-color:#ddd;color:#aaa;background:#f7f7f7}
 
-.card{background:#fff;border-radius:12px;border:1px solid #fde68a;padding:1.25rem;margin-bottom:1rem}
-.card-title{font-size:.78rem;font-weight:700;color:#92400e;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.5px}
+/* 種別選択 大ボタン */
+.type-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+.type-card{padding:1.5rem .5rem;border-radius:14px;border:2px solid #fde68a;background:#fff;text-align:center;cursor:pointer;transition:all .15s}
+.type-card.active{border-color:#f59e0b;background:#fff8e7;box-shadow:0 2px 8px rgba(245,158,11,.2)}
+.type-icon{font-size:2.2rem;margin-bottom:.25rem}
+.type-label{font-size:.95rem;font-weight:700;color:#0f1c35}
+.type-sub{font-size:.72rem;color:#7a8a9e;margin-top:2px}
 
-.type-btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
-.type-btn{padding:14px;border-radius:10px;border:2px solid #fde68a;background:#fef9ee;cursor:pointer;text-align:center;transition:all .15s}
-.type-btn.active{border-color:#f59e0b;background:#fef3c7}
-.type-btn-icon{font-size:1.4rem;margin-bottom:4px}
-.type-btn-label{font-size:.85rem;font-weight:700;color:#0f1c35}
-.type-btn-sub{font-size:.72rem;color:#7a8a9e}
+/* メーター入力 */
+.meter-card{background:#fff;border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.meter-label{font-size:.82rem;color:#7a8a9e;margin-bottom:.5rem}
+.meter-input{width:100%;border:2px solid #f59e0b;border-radius:10px;padding:14px;font-size:1.2rem;text-align:center;outline:none;color:#0f1c35}
 
-label{font-size:.85rem;color:#5a6a82;display:block;margin-bottom:5px}
-input[type=number],input[type=text],textarea{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.9rem;color:#0f1c35;outline:none;background:#fff;margin-bottom:1rem}
-input[type=number]:focus,input[type=text]:focus,textarea:focus{border-color:#f59e0b}
-textarea{resize:vertical;min-height:70px}
+/* 送信ボタン */
+.send-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:12px;padding:16px;font-size:1.1rem;font-weight:900;cursor:pointer;letter-spacing:1px;margin-bottom:1rem;transition:background .2s}
+.send-btn:hover{background:#d97706}
+.send-btn:disabled{opacity:.6}
 
-.alcohol-row{display:flex;gap:.75rem;align-items:flex-end;margin-bottom:1rem}
-.alcohol-row>div:first-child{flex:1}
-.alcohol-row>div:last-child{margin-bottom:1rem}
-.alcohol-row input{margin-bottom:0}
-.alc-badge{display:inline-block;padding:8px 14px;border-radius:8px;font-size:.82rem;font-weight:700}
-.alc-badge.ok{background:#dcfce7;color:#166534}
-.alc-badge.ng{background:#fee2e2;color:#991b1b}
-
-.radio-group{display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap}
-.radio-btn{padding:8px 14px;border-radius:8px;border:1.5px solid #fde68a;background:#fef9ee;cursor:pointer;font-size:.82rem;font-weight:600;color:#5a6a82;transition:all .15s}
-.radio-btn.active{border-color:#f59e0b;background:#fef3c7;color:#92400e}
-.radio-btn.ng-active{border-color:#e24b4a;background:#fee2e2;color:#991b1b}
-
-.submit-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:.5rem;transition:background .2s}
-.submit-btn:hover{background:#d97706}
-.submit-btn:disabled{opacity:.6}
-
-.msg{font-size:.85rem;text-align:center;margin-top:1rem;padding:.75rem;border-radius:8px}
+.msg{font-size:.85rem;text-align:center;margin-bottom:1rem;padding:.75rem;border-radius:8px}
 .msg.ok{background:#dcfce7;color:#166534}
 .msg.err{background:#fee2e2;color:#991b1b}
 
+/* 詳細折りたたみ */
+.more-toggle{text-align:center;font-size:.78rem;color:#f59e0b;margin-bottom:.75rem;cursor:pointer;font-weight:600}
+.more-detail{background:#fff;border-radius:12px;padding:1.25rem;margin-bottom:1rem;display:none}
+.more-detail.open{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
+.detail-item{background:#f7f4f0;border-radius:8px;padding:.75rem;text-align:center}
+.detail-item-label{font-size:.7rem;color:#7a8a9e;margin-bottom:4px}
+
+.radio-group{display:flex;gap:.5rem;flex-wrap:wrap}
+.radio-btn{padding:6px 12px;border-radius:8px;border:1.5px solid #fde68a;background:#fef9ee;cursor:pointer;font-size:.78rem;font-weight:600;color:#5a6a82;transition:all .15s}
+.radio-btn.active{border-color:#f59e0b;background:#fef3c7;color:#92400e}
+.radio-btn.ng-active{border-color:#e24b4a;background:#fee2e2;color:#991b1b}
+
+label{font-size:.82rem;color:#5a6a82;display:block;margin-bottom:5px;margin-top:.75rem}
+input[type=text]{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.9rem;color:#0f1c35;outline:none;background:#fff;margin-bottom:.5rem}
+input[type=text]:focus{border-color:#f59e0b}
+textarea{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.9rem;color:#0f1c35;outline:none;background:#fff;resize:vertical;min-height:60px}
+
+/* 今日の記録 */
 .today-section{background:#fff;border-radius:12px;border:1px solid #fde68a;overflow:hidden;margin-bottom:1rem}
 .today-header{padding:.75rem 1.25rem;border-bottom:1px solid #fef3c7;font-size:.85rem;font-weight:700;color:#92400e}
 .today-item{padding:1rem 1.25rem;border-bottom:1px solid #fef9ee}
@@ -71,6 +71,8 @@ textarea{resize:vertical;min-height:70px}
 .badge.done{background:#dcfce7;color:#166534}
 .empty{padding:1.5rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+
+/* 月別 */
 .month-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1rem;background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.875rem}
 .month-btn{background:#fef3c7;border:none;border-radius:6px;padding:5px 12px;font-size:.85rem;cursor:pointer;color:#92400e;font-weight:700}
 .month-label{font-size:.9rem;font-weight:700}
@@ -81,6 +83,10 @@ textarea{resize:vertical;min-height:70px}
 .record-date{font-size:.82rem;font-weight:700;color:#0f1c35;margin-bottom:4px}
 .record-detail{font-size:.75rem;color:#7a8a9e;line-height:1.8}
 .csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
+
+.alc-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:.78rem;font-weight:700}
+.alc-badge.ok{background:#dcfce7;color:#166534}
+.alc-badge.ng{background:#fee2e2;color:#991b1b}
 </style>
 </head>
 <body>
@@ -90,55 +96,55 @@ textarea{resize:vertical;min-height:70px}
 </div>
 
 <div class="main">
-  <div class="status-bar">
-    <div class="status-title">今日の点呼状況</div>
-    <div class="status-grid">
-      <div class="status-item" id="status-before">
-        <div class="status-label">乗務前点呼</div>
-        <div class="status-value" id="before-status">未完了</div>
-      </div>
-      <div class="status-item" id="status-after">
-        <div class="status-label">乗務後点呼</div>
-        <div class="status-value" id="after-status">未完了</div>
-      </div>
+
+  <!-- 今日の状況バッジ -->
+  <div class="today-status">
+    <span class="badge-d pending" id="badge-before">乗務前 未</span>
+    <span class="badge-d pending" id="badge-after">乗務後 未</span>
+  </div>
+
+  <!-- 種別選択 -->
+  <div class="type-wrap">
+    <div class="type-card active" id="btn-before" onclick="setType('before')">
+      <div class="type-icon">🌅</div>
+      <div class="type-label">乗務前</div>
+      <div class="type-sub">出発前</div>
+    </div>
+    <div class="type-card" id="btn-after" onclick="setType('after')">
+      <div class="type-icon">🌙</div>
+      <div class="type-label">乗務後</div>
+      <div class="type-sub">帰着後</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">点呼を記録する</div>
-    <div class="type-btns">
-      <div class="type-btn active" id="btn-before" onclick="setType('before')">
-        <div class="type-btn-icon">🌅</div>
-        <div class="type-btn-label">乗務前</div>
-        <div class="type-btn-sub">出発前</div>
-      </div>
-      <div class="type-btn" id="btn-after" onclick="setType('after')">
-        <div class="type-btn-icon">🌙</div>
-        <div class="type-btn-label">乗務後</div>
-        <div class="type-btn-sub">帰着後</div>
-      </div>
-    </div>
+  <!-- メーター入力 -->
+  <div class="meter-card">
+    <div class="meter-label">メーター値（km）</div>
+    <input class="meter-input" type="text" inputmode="text" id="meter-val" placeholder="例：123456">
+  </div>
 
-    <div class="alcohol-row">
-      <div>
-        <label>アルコール検知値（mg/L）</label>
-        <input type="text" inputmode="text" id="alcohol-val" placeholder="0.00" step="0.01" min="0" oninput="checkAlcohol()">
-      </div>
-      <div><span class="alc-badge ok" id="alc-badge">正常</span></div>
-    </div>
+  <!-- 送信ボタン -->
+  <button class="send-btn" id="submit-btn" onclick="submitTenko()">🚚 点呼する</button>
+  <div class="msg" id="msg" style="display:none"></div>
 
-    <label>メーター値（km）</label>
-    <input type="text" inputmode="text" id="meter-val" placeholder="例：12345">
+  <!-- 詳細折りたたみ -->
+  <div class="more-toggle" onclick="toggleDetail()">▼ アルコール・健康状態を入力する</div>
+  <div class="more-detail" id="more-detail">
+    <label>アルコール検知値（mg/L）</label>
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
+      <input type="text" inputmode="text" id="alcohol-val" placeholder="0.00" oninput="checkAlcohol()" style="margin-bottom:0;flex:1">
+      <span class="alc-badge ok" id="alc-badge">正常</span>
+    </div>
 
     <label>健康状態</label>
-    <div class="radio-group">
+    <div class="radio-group" style="margin-bottom:.75rem">
       <div class="radio-btn active" id="h-good" onclick="setHealth('良好')">良好</div>
       <div class="radio-btn" id="h-normal" onclick="setHealth('普通')">普通</div>
       <div class="radio-btn" id="h-bad" onclick="setHealth('不良')">不良</div>
     </div>
 
     <label>疲労・睡眠</label>
-    <div class="radio-group">
+    <div class="radio-group" style="margin-bottom:.75rem">
       <div class="radio-btn active" id="f-good" onclick="setFatigue('問題なし')">問題なし</div>
       <div class="radio-btn" id="f-tired" onclick="setFatigue('やや疲労')">やや疲労</div>
       <div class="radio-btn" id="f-bad" onclick="setFatigue('疲労あり')">疲労あり</div>
@@ -146,16 +152,15 @@ textarea{resize:vertical;min-height:70px}
 
     <label>特記事項</label>
     <textarea id="notes" placeholder="特記事項があれば入力してください"></textarea>
-
-    <button class="submit-btn" id="submit-btn" onclick="submitTenko()">点呼を送信する</button>
-    <div class="msg" id="msg" style="display:none"></div>
   </div>
 
+  <!-- 今日の点呼記録 -->
   <div class="today-section">
     <div class="today-header">今日の点呼記録</div>
     <div id="today-list"><div class="loading">読込中...</div></div>
   </div>
 
+  <!-- 月別記録 -->
   <div class="month-nav">
     <button class="month-btn" onclick="changeMonth(-1)">◀</button>
     <span class="month-label" id="month-label">-</span>
@@ -168,6 +173,7 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div id="month-list"><div class="loading">読込中...</div></div>
   </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -182,6 +188,12 @@ var fatigueStatus='問題なし';
 var todayRecords={before:null,after:null};
 var currentDate=new Date();
 var monthRecords=[];
+var detailOpen=false;
+
+function getTodayJST(){
+  var jst=new Date(new Date().getTime()+9*60*60*1000);
+  return jst.toISOString().split('T')[0];
+}
 
 function getMonthRange(){
   var y=currentDate.getFullYear();
@@ -198,6 +210,49 @@ function changeMonth(d){
   var range=getMonthRange();
   document.getElementById('month-label').textContent=range.label;
   loadMonthRecords();
+}
+
+function toggleDetail(){
+  detailOpen=!detailOpen;
+  var el=document.getElementById('more-detail');
+  var toggle=document.querySelector('.more-toggle');
+  el.classList.toggle('open',detailOpen);
+  toggle.textContent=detailOpen?'▲ 詳細を閉じる':'▼ アルコール・健康状態を入力する';
+}
+
+async function init(){
+  var {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  userId=session.user.id;
+  var range=getMonthRange();
+  document.getElementById('month-label').textContent=range.label;
+  loadToday();
+  loadMonthRecords();
+}
+
+async function loadToday(){
+  var today=getTodayJST();
+  var {data:records}=await sb.from('tenko_records').select('*').eq('user_id',userId).eq('date',today).order('created_at',{ascending:false});
+  todayRecords.before=records&&records.find(r=>r.tenko_type==='乗務前')||null;
+  todayRecords.after=records&&records.find(r=>r.tenko_type==='乗務後')||null;
+
+  // バッジ更新
+  var bb=document.getElementById('badge-before');
+  var ba=document.getElementById('badge-after');
+  if(todayRecords.before){bb.textContent='乗務前 ✓';bb.className='badge-d done';}
+  else{bb.textContent='乗務前 未';bb.className='badge-d pending';}
+  if(todayRecords.after){ba.textContent='乗務後 ✓';ba.className='badge-d done';}
+  else{ba.textContent='乗務後 未';ba.className='badge-d pending';}
+
+  var el=document.getElementById('today-list');
+  var items=[todayRecords.before,todayRecords.after].filter(Boolean);
+  if(items.length===0){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}
+  el.innerHTML=items.map(r=>{
+    var typeBadge=r.tenko_type==='乗務前'?'<span class="badge before">乗務前</span>':'<span class="badge after">乗務後</span>';
+    var timeVal=r.updated_at||r.created_at;
+    var time=timeVal?new Date(timeVal).toLocaleString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'';
+    return '<div class="today-item"><div class="today-type">'+typeBadge+' <span class="badge done">送信済</span></div><div class="today-detail">アルコール: '+(r.alcohol_value||0)+' mg/L　健康: '+(r.health_status||'-')+'　疲労: '+(r.fatigue_status||'-')+'<br>メーター: '+(r.meter_value||'-')+' km　送信: '+time+(r.notes?'<br>特記: '+r.notes:'')+'</div></div>';
+  }).join('');
 }
 
 async function loadMonthRecords(){
@@ -221,7 +276,7 @@ function renderMonthList(){
       var typeBadge=r.tenko_type==='乗務前'?'<span class="badge before">乗務前</span>':'<span class="badge after">乗務後</span>';
       var timeVal=r.updated_at||r.created_at;
       var time=timeVal?new Date(timeVal).toLocaleString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'-';
-      return typeBadge+' アルコール:'+( r.alcohol_value||0)+' 健康:'+(r.health_status||'-')+' 疲労:'+(r.fatigue_status||'-')+' '+time;
+      return typeBadge+' アルコール:'+(r.alcohol_value||0)+' 健康:'+(r.health_status||'-')+' 疲労:'+(r.fatigue_status||'-')+' '+time;
     }).join('<br>');
     return '<div class="record-item"><div class="record-date">'+date+'</div><div class="record-detail">'+details+'</div></div>';
   }).join('');
@@ -243,52 +298,6 @@ function exportCSV(){
   var a=document.createElement('a');
   a.href=url;a.download='点呼記録_'+label+'.csv';a.click();
   URL.revokeObjectURL(url);
-}
-
-function getTodayJST(){
-  var jst=new Date(new Date().getTime()+9*60*60*1000);
-  return jst.toISOString().split('T')[0];
-}
-
-async function init(){
-  var {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='index.html';return;}
-  userId=session.user.id;
-  var range=getMonthRange();
-  document.getElementById('month-label').textContent=range.label;
-  loadToday();
-  loadMonthRecords();
-}
-
-async function loadToday(){
-  var today=getTodayJST();
-  var {data:records}=await sb.from('tenko_records').select('*').eq('user_id',userId).eq('date',today).order('created_at',{ascending:false});
-  todayRecords.before=records&&records.find(r=>r.tenko_type==='乗務前')||null;
-  todayRecords.after=records&&records.find(r=>r.tenko_type==='乗務後')||null;
-
-  var beforeDone=!!todayRecords.before;
-  var afterDone=!!todayRecords.after;
-  document.getElementById('before-status').textContent=beforeDone?'完了':'未完了';
-  document.getElementById('after-status').textContent=afterDone?'完了':'未完了';
-  document.getElementById('status-before').className='status-item'+(beforeDone?' done':' pending');
-  document.getElementById('status-after').className='status-item'+(afterDone?' done':' pending');
-
-  var el=document.getElementById('today-list');
-  var items=[todayRecords.before,todayRecords.after].filter(Boolean);
-  if(items.length===0){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}
-  el.innerHTML=items.map(r=>{
-    var typeBadge=r.tenko_type==='乗務前'?'<span class="badge before">乗務前</span>':'<span class="badge after">乗務後</span>';
-    var timeVal=r.updated_at||r.created_at;
-    var time=timeVal?new Date(timeVal).toLocaleString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'';
-    return `<div class="today-item">
-      <div class="today-type">${typeBadge} <span class="badge done">送信済</span></div>
-      <div class="today-detail">
-        アルコール: ${r.alcohol_value||0} mg/L　健康: ${r.health_status||'-'}　疲労: ${r.fatigue_status||'-'}<br>
-        メーター: ${r.meter_value||'-'} km　送信: ${time}
-        ${r.notes?'<br>特記: '+r.notes:''}
-      </div>
-    </div>`;
-  }).join('');
 }
 
 function setType(t){
@@ -327,23 +336,23 @@ async function submitTenko(){
   var ttype=tenkoType==='before'?'乗務前':'乗務後';
   var existing=tenkoType==='before'?todayRecords.before:todayRecords.after;
 
-  // バリデーション
-  var alcVal=document.getElementById('alcohol-val').value.trim();
-  var meterVal=document.getElementById('meter-val').value.trim();
-  if(alcVal&&!/^[0-9.]+$/.test(alcVal)){
-    showMsg('アルコール検知値は半角数字で入力してください','err');
-    document.getElementById('alcohol-val').value='';btn.disabled=false;return;
-  }
-  if(meterVal&&!/^[0-9.]+$/.test(meterVal)){
+  var meterStr=document.getElementById('meter-val').value.trim();
+  var alcStr=document.getElementById('alcohol-val').value.trim();
+
+  if(meterStr&&!/^[0-9.]+$/.test(meterStr)){
     showMsg('メーター値は半角数字で入力してください','err');
     document.getElementById('meter-val').value='';btn.disabled=false;return;
+  }
+  if(alcStr&&!/^[0-9.]+$/.test(alcStr)){
+    showMsg('アルコール値は半角数字で入力してください','err');
+    document.getElementById('alcohol-val').value='';btn.disabled=false;return;
   }
 
   var record={
     tenko_type:ttype,
     method:'セルフ',
-    alcohol_value:parseFloat(alcVal)||0,
-    meter_value:parseInt(meterVal)||null,
+    alcohol_value:parseFloat(alcStr)||0,
+    meter_value:parseInt(meterStr)||null,
     health_status:healthStatus,
     fatigue_status:fatigueStatus,
     notes:document.getElementById('notes').value,
@@ -361,25 +370,31 @@ async function submitTenko(){
   }
 
   if(error){
-    msg.textContent='エラー: '+error.message;
-    msg.className='msg err';msg.style.display='block';
+    showMsg('エラー: '+error.message,'err');
     btn.disabled=false;return;
   }
 
-  msg.textContent=existing?'送信し直しました！':'点呼を送信しました！';
-  msg.className='msg ok';msg.style.display='block';
-  document.getElementById('alcohol-val').value='';
+  showMsg(existing?'送信し直しました！':'点呼を送信しました！','ok');
   document.getElementById('meter-val').value='';
+  document.getElementById('alcohol-val').value='';
   document.getElementById('notes').value='';
   checkAlcohol();setHealth('良好');setFatigue('問題なし');
   btn.disabled=false;
   loadToday();
+  loadMonthRecords();
   setTimeout(()=>{msg.style.display='none';},3000);
+}
+
+function showMsg(text,type){
+  var el=document.getElementById('msg');
+  el.textContent=text;
+  el.className='msg '+type;
+  el.style.display='block';
 }
 
 init();
 </script>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.4</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2</div>
 </body>
 </html>
