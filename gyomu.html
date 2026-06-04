@@ -69,18 +69,6 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
 .empty{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 
-/* 時刻ピッカー */
-.time-picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center}
-.time-picker-overlay.show{display:flex}
-.time-picker-panel{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem;width:100%;max-width:480px}
-.time-picker-title{font-size:.85rem;font-weight:700;color:#92400e;margin-bottom:1rem;text-align:center}
-.now-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:1rem}
-.time-picker-selects{display:grid;grid-template-columns:1fr auto 1fr;gap:.5rem;align-items:center;margin-bottom:1rem}
-.time-select{border:2px solid #fde68a;border-radius:10px;padding:10px;font-size:1.2rem;font-weight:700;text-align:center;outline:none;width:100%}
-.time-colon{font-size:1.5rem;font-weight:700;color:#f59e0b;text-align:center}
-.time-picker-btns{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.time-cancel{background:#f7f4f0;border:none;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;color:#7a8a9e;cursor:pointer}
-.time-set{background:#0a1628;border:none;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;color:#fff;cursor:pointer}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 </style>
 </head>
@@ -112,79 +100,8 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 
 <div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2</div>
 
-<!-- 時刻ピッカー -->
-<div class="time-picker-overlay" id="time-picker">
-  <div class="time-picker-panel">
-    <div class="time-picker-title">時刻を選択</div>
-    <button class="now-btn" onclick="setNowTime()">🕐 今の時刻をセット</button>
-    <div class="time-picker-selects">
-      <select class="time-select" id="pick-hour"></select>
-      <div class="time-colon">:</div>
-      <select class="time-select" id="pick-min"></select>
-    </div>
-    <div class="time-picker-btns">
-      <button class="time-cancel" onclick="closePicker()">キャンセル</button>
-      <button class="time-set" onclick="confirmTime()">セットする</button>
-    </div>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 時刻ピッカー
-var pickerTargetId=null;
-
-function openTimePicker(inputId){
-  pickerTargetId=inputId;
-  var input=document.getElementById(inputId);
-  var val=input.value||'';
-  var parts=val.split(':');
-  var h=parseInt(parts[0])||0;
-  var m=parseInt(parts[1])||0;
-
-  // 時・分のセレクトを生成
-  var hourSel=document.getElementById('pick-hour');
-  var minSel=document.getElementById('pick-min');
-  hourSel.innerHTML='';
-  minSel.innerHTML='';
-  for(var i=0;i<24;i++){
-    var opt=document.createElement('option');
-    opt.value=i;
-    opt.textContent=String(i).padStart(2,'0');
-    if(i===h) opt.selected=true;
-    hourSel.appendChild(opt);
-  }
-  for(var j=0;j<60;j++){
-    var opt2=document.createElement('option');
-    opt2.value=j;
-    opt2.textContent=String(j).padStart(2,'0');
-    if(j===m) opt2.selected=true;
-    minSel.appendChild(opt2);
-  }
-  document.getElementById('time-picker').classList.add('show');
-}
-
-function setNowTime(){
-  var jst=new Date(new Date().getTime()+9*60*60*1000);
-  var h=jst.getUTCHours();
-  var m=jst.getUTCMinutes();
-  document.getElementById('pick-hour').value=h;
-  document.getElementById('pick-min').value=m;
-}
-
-function confirmTime(){
-  if(!pickerTargetId) return;
-  var h=String(document.getElementById('pick-hour').value).padStart(2,'0');
-  var m=String(document.getElementById('pick-min').value).padStart(2,'0');
-  document.getElementById(pickerTargetId).value=h+':'+m;
-  closePicker();
-}
-
-function closePicker(){
-  document.getElementById('time-picker').classList.remove('show');
-  pickerTargetId=null;
-}
-
 var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
 var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
 var sb=window.supabase.createClient(SURL,SKEY);
@@ -262,7 +179,7 @@ function jobCardHTML(job,no){
       <div class="point-title"><div class="point-dot start"></div><span class="point-label start">出発地点</span></div>
       <div class="input-group"><span class="input-label">場所の名前</span><input class="input-field" type="text" id="sp-${job.id}" value="${job.start_place||''}" placeholder="例：厚木センター"></div>
       <div class="input-row">
-        <div class="input-group"><span class="input-label">出発時刻</span><input class="input-field" type="text" inputmode="text" id="st-${job.id}" value="${job.start_time||''}" placeholder="08:00" onclick="openTimePicker('st-${job.id}')" readonly></div>
+        <div class="input-group"><span class="input-label">出発時刻</span><input class="input-field" type="time" id="st-${job.id}" value="${job.start_time||''}"></div>
         <div class="input-group"><span class="input-label">メーター（km）</span><input class="input-field" type="text" inputmode="text" id="sm-${job.id}" value="${job.start_meter||''}" placeholder="123456"></div>
       </div>
     </div>
@@ -274,7 +191,7 @@ function jobCardHTML(job,no){
         <div class="input-group">
           <span class="input-label">到着時刻</span>
           <div class="time-row">
-            <div class="input-group"><input class="input-field" type="text" inputmode="text" id="et-${job.id}" value="${job.end_time||''}" placeholder="10:30" onclick="openTimePicker('et-${job.id}')" readonly></div>
+            <div class="input-group"><input class="input-field" type="time" id="et-${job.id}" value="${job.end_time||''}"></div>
             <button class="nextday-btn${job.next_day?' active':''}" id="nd-${job.id}" onclick="toggleNextDay('${job.id}')">翌日${job.next_day?' ✓':''}</button>
           </div>
         </div>
