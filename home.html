@@ -113,6 +113,10 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div><div class="toggle-label">📦 配送管理</div><div class="toggle-desc">配送件数を記録</div></div>
       <label class="switch"><input type="checkbox" id="s-delivery"><span class="slider"></span></label>
     </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">📝 業務記録</div><div class="toggle-desc">案件ごとの業務を記録</div></div>
+      <label class="switch"><input type="checkbox" id="s-gyomu"><span class="slider"></span></label>
+    </div>
     <button class="modal-btn" onclick="saveSetting()">保存する</button>
     <button class="modal-cancel" onclick="closeSetting()">キャンセル</button>
   </div>
@@ -137,7 +141,7 @@ async function init(){
   var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
   if(!s){
     await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
-    settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false};
+    settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false,feature_gyomu:false};
   } else {
     settings=s;
   }
@@ -182,6 +186,7 @@ function renderFeatures(){
     {key:'feature_sales',icon:'💰',name:'売上・経費',desc:'収支を簡単管理',url:'sales.html'},
     {key:'feature_work',icon:'⏰',name:'勤怠管理',desc:'稼働時間を記録',url:'work.html'},
     {key:'feature_delivery',icon:'📦',name:'配送管理',desc:'配送件数を記録',url:'delivery.html'},
+    {key:'feature_gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
   ];
 
   var active=features.filter(f=>settings[f.key]);
@@ -206,6 +211,7 @@ function openSetting(){
   document.getElementById('s-sales').checked=settings.feature_sales;
   document.getElementById('s-work').checked=settings.feature_work;
   document.getElementById('s-delivery').checked=settings.feature_delivery;
+  document.getElementById('s-gyomu').checked=settings.feature_gyomu;
   document.getElementById('setting-modal').classList.add('show');
 }
 function closeSetting(){document.getElementById('setting-modal').classList.remove('show');}
@@ -216,6 +222,7 @@ async function saveSetting(){
     feature_sales:document.getElementById('s-sales').checked,
     feature_work:document.getElementById('s-work').checked,
     feature_delivery:document.getElementById('s-delivery').checked,
+    feature_gyomu:document.getElementById('s-gyomu').checked,
   };
   await sb.from('user_settings').update(newSettings).eq('user_id',userId);
   settings=Object.assign(settings,newSettings);
@@ -227,6 +234,6 @@ async function logout(){await sb.auth.signOut();window.location.href='index.html
 init();
 </script>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2</div>
 </body>
 </html>
