@@ -85,6 +85,36 @@ textarea{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12
 .csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
 
 .alc-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:.78rem;font-weight:700}
+
+/* 背景色切り替え */
+.bg-before{background:linear-gradient(160deg,#fff8e7 0%,#fef3c7 100%);transition:background .5s}
+.bg-after{background:linear-gradient(160deg,#1e3a5f 0%,#0a1628 100%);transition:background .5s}
+.bg-after .type-card{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+.bg-after .type-card.active{border-color:#f59e0b;background:rgba(245,158,11,.15)}
+.bg-after .type-label{color:#fff}
+.bg-after .type-sub{color:rgba(255,255,255,.6)}
+.bg-after .meter-card{background:rgba(255,255,255,.1);border:none}
+.bg-after .meter-label{color:rgba(245,158,11,.9)}
+.bg-after .meter-input{background:rgba(255,255,255,.08);border-color:#f59e0b;color:#fff}
+.bg-after .meter-input::placeholder{color:rgba(255,255,255,.3)}
+.bg-after .more-toggle{color:rgba(255,255,255,.5)}
+.bg-after .more-detail{background:rgba(255,255,255,.08)}
+.bg-after label{color:rgba(255,255,255,.7)}
+.bg-after .input-field{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+.bg-after .radio-btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
+.bg-after .radio-btn.active{border-color:#f59e0b;background:rgba(245,158,11,.2);color:#fde68a}
+.bg-after .today-section{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.bg-after .today-header{color:#fde68a;border-color:rgba(255,255,255,.1)}
+.bg-after .today-detail{color:rgba(255,255,255,.6)}
+.bg-after .empty{color:rgba(255,255,255,.4)}
+.bg-after .month-nav{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.bg-after .month-label{color:#fff}
+.bg-after .records-section{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.bg-after .records-header{color:#fde68a;border-color:rgba(255,255,255,.1)}
+.bg-after .record-date{color:#fff}
+.bg-after .record-detail{color:rgba(255,255,255,.6)}
+.bg-after .badge-d.pending{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.5)}
+.bg-after textarea{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
 .alc-badge.ok{background:#dcfce7;color:#166534}
 .alc-badge.ng{background:#fee2e2;color:#991b1b}
 </style>
@@ -95,7 +125,7 @@ textarea{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12
   <button class="back-btn" onclick="window.location.href='home.html'">← ホーム</button>
 </div>
 
-<div class="main">
+<div class="main bg-before" id="main-bg">
 
   <!-- 今日の状況バッジ -->
   <div class="today-status">
@@ -304,6 +334,12 @@ function setType(t){
   tenkoType=t;
   document.getElementById('btn-before').classList.toggle('active',t==='before');
   document.getElementById('btn-after').classList.toggle('active',t==='after');
+  var bg=document.getElementById('main-bg');
+  if(t==='before'){
+    bg.className='main bg-before';
+  } else {
+    bg.className='main bg-after';
+  }
 }
 
 function checkAlcohol(){
@@ -395,6 +431,6 @@ function showMsg(text,type){
 init();
 </script>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.1</div>
 </body>
 </html>

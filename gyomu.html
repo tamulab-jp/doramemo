@@ -190,37 +190,41 @@ function renderJobs(){
 
 function jobCardHTML(job,no){
   var incomplete=!job.end_place&&!job.end_time?'<span class="incomplete-badge">到着未入力</span>':'';
-  var jobName=job.job_name||'';
-  return `<div class="job-card" id="job-${job.id}">
-    <div class="job-header">
-      <div class="job-header-left">
-        <span class="job-no">案件 ${no}</span>
-        <input class="job-name-input" type="text" id="jn-${job.id}" value="${jobName}" placeholder="案件名（任意）" onfocus="this.select()">
-        ${incomplete}
-      </div>
-      <button class="job-del" onclick="deleteJob('${job.id}')">✕</button>
-    </div>
-    <div class="job-body">
-      <div class="point-row">
-        <div class="point-dot start"></div>
-        <input class="field-place" type="text" id="sp-${job.id}" value="${job.start_place||''}" placeholder="出発地点">
-        <input class="field-time" type="time" id="st-${job.id}" value="${job.start_time||''}">
-        <input class="field-meter" type="text" inputmode="text" id="sm-${job.id}" value="${job.start_meter||''}" placeholder="km">
-      </div>
-      <div class="point-row">
-        <div class="point-dot end"></div>
-        <input class="field-place" type="text" id="ep-${job.id}" value="${job.end_place||''}" placeholder="到着地点">
-        <input class="field-time" type="time" id="et-${job.id}" value="${job.end_time||''}">
-        <input class="field-meter" type="text" inputmode="text" id="em-${job.id}" value="${job.end_meter||''}" placeholder="km">
-      </div>
-      <input class="field-memo" type="text" id="memo-${job.id}" value="${job.memo||''}" placeholder="メモ（任意）" onfocus="this.select()">
-      <div class="job-footer">
-        <label class="nextday-check"><input type="checkbox" id="nd-${job.id}" ${job.next_day?'checked':''}> 翌日着</label>
-        <span class="distance-text" id="dist-${job.id}">${job.start_meter&&job.end_meter&&job.end_meter>job.start_meter?(job.end_meter-job.start_meter)+' km':'-- km'}</span>
-        <button class="save-job-btn" onclick="saveJob('${job.id}')">💾 保存</button>
-      </div>
-    </div>
-  </div>`;
+  var jobName=(job.job_name||'').replace(/"/g,'&quot;');
+  var startPlace=(job.start_place||'').replace(/"/g,'&quot;');
+  var endPlace=(job.end_place||'').replace(/"/g,'&quot;');
+  var memoVal=(job.memo||'').replace(/"/g,'&quot;');
+  var dist=job.start_meter&&job.end_meter&&job.end_meter>job.start_meter?(job.end_meter-job.start_meter)+' km':'-- km';
+  var ndChecked=job.next_day?'checked':'';
+  var html='<div class="job-card" id="job-'+job.id+'">';
+  html+='<div class="job-header">';
+  html+='<div class="job-header-left">';
+  html+='<span class="job-no">案件 '+no+'</span>';
+  html+='<input class="job-name-input" type="text" id="jn-'+job.id+'" value="'+jobName+'" placeholder="案件名（任意）" onfocus="this.select()">';
+  html+=incomplete;
+  html+='</div>';
+  html+='<button class="job-del" onclick="deleteJob(''+job.id+'')">✕</button>';
+  html+='</div>';
+  html+='<div class="job-body">';
+  html+='<div class="point-row">';
+  html+='<div class="point-dot start"></div>';
+  html+='<input class="field-place" type="text" id="sp-'+job.id+'" value="'+startPlace+'" placeholder="出発地点">';
+  html+='<input class="field-time" type="time" id="st-'+job.id+'" value="'+(job.start_time||'')+'">';
+  html+='<input class="field-meter" type="text" inputmode="text" id="sm-'+job.id+'" value="'+(job.start_meter||'')+'" placeholder="km">';
+  html+='</div>';
+  html+='<div class="point-row">';
+  html+='<div class="point-dot end"></div>';
+  html+='<input class="field-place" type="text" id="ep-'+job.id+'" value="'+endPlace+'" placeholder="到着地点">';
+  html+='<input class="field-time" type="time" id="et-'+job.id+'" value="'+(job.end_time||'')+'">';
+  html+='<input class="field-meter" type="text" inputmode="text" id="em-'+job.id+'" value="'+(job.end_meter||'')+'" placeholder="km">';
+  html+='</div>';
+  html+='<input class="field-memo" type="text" id="memo-'+job.id+'" value="'+memoVal+'" placeholder="メモ（任意）" onfocus="this.select()">';
+  html+='<div class="job-footer">';
+  html+='<label class="nextday-check"><input type="checkbox" id="nd-'+job.id+'" '+ndChecked+'> 翌日着</label>';
+  html+='<span class="distance-text" id="dist-'+job.id+'">'+dist+'</span>';
+  html+='<button class="save-job-btn" onclick="saveJob(''+job.id+'')">💾 保存</button>';
+  html+='</div></div></div>';
+  return html;
 }
 
 function updateDistance(id){
