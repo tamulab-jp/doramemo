@@ -171,11 +171,13 @@ function renderJobs(){
       if(!el) return;
       el.addEventListener('focus',function(){this.select();});
       var timer;
+      var elRef=el;
       el.addEventListener('touchstart',function(){
-        timer=setTimeout(()=>{
-          this.value=getNowTimeJST();
+        var self=this;
+        timer=setTimeout(function(){
+          self.value=getNowTimeJST();
           showMsg('現在時刻をセットしました','ok');
-        }.bind(this),600);
+        },600);
       });
       el.addEventListener('touchend',function(){clearTimeout(timer);});
       el.addEventListener('touchmove',function(){clearTimeout(timer);});
@@ -203,7 +205,7 @@ function jobCardHTML(job,no){
   html+='<input class="job-name-input" type="text" id="jn-'+job.id+'" value="'+jobName+'" placeholder="案件名（任意）" onfocus="this.select()">';
   html+=incomplete;
   html+='</div>';
-  html+='<button class="job-del" onclick="deleteJob(''+job.id+'')">✕</button>';
+  html+='<button class="job-del" onclick="deleteJob(\''+job.id+'\')">✕</button>';
   html+='</div>';
   html+='<div class="job-body">';
   html+='<div class="point-row">';
@@ -222,7 +224,7 @@ function jobCardHTML(job,no){
   html+='<div class="job-footer">';
   html+='<label class="nextday-check"><input type="checkbox" id="nd-'+job.id+'" '+ndChecked+'> 翌日着</label>';
   html+='<span class="distance-text" id="dist-'+job.id+'">'+dist+'</span>';
-  html+='<button class="save-job-btn" onclick="saveJob(''+job.id+'')">💾 保存</button>';
+  html+='<button class="save-job-btn" onclick="saveJob(\''+job.id+'\')">💾 保存</button>';
   html+='</div></div></div>';
   return html;
 }
