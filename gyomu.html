@@ -12,47 +12,39 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .back-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 12px;font-size:.78rem;color:#fff;cursor:pointer}
 .main{max-width:480px;margin:0 auto;padding:1rem}
 
-.date-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1rem;background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.875rem}
+.date-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.75rem;background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.75rem}
 .date-btn{background:#fef3c7;border:none;border-radius:6px;padding:5px 12px;font-size:.85rem;cursor:pointer;color:#92400e;font-weight:700}
 .date-label{font-size:.9rem;font-weight:700}
 
-.job-card{background:#fff;border-radius:14px;border:1px solid #fde68a;margin-bottom:1rem;overflow:hidden}
-.job-header{background:#fef3c7;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
-.job-no{font-size:.82rem;font-weight:700;color:#92400e;display:flex;align-items:center;gap:.5rem}
-.incomplete-badge{font-size:.68rem;background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-weight:700}
-.job-del{background:none;border:none;color:#fca5a5;font-size:.8rem;cursor:pointer}
+.job-card{background:#fff;border-radius:14px;border:1px solid #fde68a;margin-bottom:.75rem;overflow:hidden}
+.job-header{background:#fef3c7;padding:.5rem .875rem;display:flex;align-items:center;justify-content:space-between}
+.job-header-left{display:flex;align-items:center;gap:.5rem;flex:1}
+.job-no{font-size:.78rem;font-weight:700;color:#92400e;white-space:nowrap}
+.job-name-input{border:1px solid #fde68a;border-radius:6px;padding:3px 8px;font-size:.78rem;color:#92400e;background:#fff8e7;width:110px;outline:none}
+.job-name-input:focus{border-color:#f59e0b}
+.incomplete-badge{font-size:.65rem;background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:10px;font-weight:700;white-space:nowrap}
+.job-del{background:none;border:none;color:#fca5a5;font-size:.75rem;cursor:pointer;padding:0 4px}
 
-.point-block{padding:1rem 1.25rem}
-.point-title{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
-.point-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.job-body{padding:.75rem .875rem}
+.point-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
+.point-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .point-dot.start{background:#f59e0b}
 .point-dot.end{background:#0a1628}
-.point-label{font-size:.78rem;font-weight:700}
-.point-label.start{color:#92400e}
-.point-label.end{color:#0a1628}
+.field-place{flex:1;border:1px solid #fde68a;border-radius:6px;padding:5px 7px;font-size:.8rem;color:#0f1c35;outline:none;min-width:0}
+.field-place:focus{border-color:#f59e0b}
+.field-time{border:1px solid #fde68a;border-radius:6px;padding:5px 4px;font-size:.78rem;color:#0f1c35;outline:none;width:88px;flex-shrink:0}
+.field-time:focus{border-color:#f59e0b}
+.field-meter{border:1px solid #fde68a;border-radius:6px;padding:5px 5px;font-size:.78rem;color:#0f1c35;outline:none;width:65px;flex-shrink:0;text-align:center}
+.field-meter:focus{border-color:#f59e0b}
 
-.input-group{display:flex;flex-direction:column;gap:3px;margin-bottom:.5rem}
-.input-label{font-size:.7rem;color:#7a8a9e}
-.input-field{border:1.5px solid #fde68a;border-radius:8px;padding:8px 10px;font-size:.88rem;color:#0f1c35;outline:none;background:#fff;width:100%}
-.input-field:focus{border-color:#f59e0b}
-.input-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.time-row{display:flex;gap:.5rem;align-items:flex-end}
-.time-row .input-group{flex:1;margin-bottom:0}
-.nextday-btn{background:#f7f4f0;border:1.5px solid #ddd;border-radius:8px;padding:8px 10px;font-size:.72rem;font-weight:700;color:#7a8a9e;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.nextday-btn.active{background:#fef3c7;border-color:#f59e0b;color:#92400e}
-
-.divider{display:flex;align-items:center;padding:0 1.25rem;gap:.5rem;margin:.25rem 0}
-.divider-line{flex:1;border-top:1.5px dashed #fde68a}
-.divider-icon{font-size:.9rem;color:#f59e0b}
-
-.distance-summary{background:#fef9ee;margin:.5rem 1.25rem 1rem;border-radius:8px;padding:.625rem 1rem;display:flex;justify-content:space-between;align-items:center}
-.distance-label{font-size:.72rem;color:#92400e}
-.distance-value{font-size:.9rem;font-weight:700;color:#92400e}
-
-.save-job-btn{width:calc(100% - 2.5rem);margin:0 1.25rem 1rem;background:#0a1628;color:#fff;border:none;border-radius:8px;padding:10px;font-size:.85rem;font-weight:700;cursor:pointer}
+.job-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.5rem}
+.nextday-check{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#7a8a9e;cursor:pointer}
+.nextday-check input{cursor:pointer}
+.distance-text{font-size:.72rem;color:#92400e;font-weight:700}
+.save-job-btn{background:#0a1628;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:.72rem;font-weight:700;cursor:pointer}
 .save-job-btn:disabled{opacity:.5}
 
-.add-job-btn{width:100%;background:#fff;border:2px dashed #f59e0b;border-radius:14px;padding:1rem;font-size:.88rem;font-weight:700;color:#f59e0b;cursor:pointer;margin-bottom:1rem}
+.add-job-btn{width:100%;background:#fff;border:2px dashed #f59e0b;border-radius:14px;padding:.875rem;font-size:.88rem;font-weight:700;color:#f59e0b;cursor:pointer;margin-bottom:.75rem}
 .add-job-btn:hover{background:#fef9ee}
 
 .msg{font-size:.82rem;text-align:center;padding:.5rem;border-radius:6px;margin-bottom:.75rem}
@@ -68,7 +60,8 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .history-job:last-child{margin-bottom:0}
 .csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
 .empty{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
-
+.field-memo{width:100%;border:1px solid #fde68a;border-radius:6px;padding:5px 7px;font-size:.78rem;color:#0f1c35;outline:none;margin-top:.4rem}
+.field-memo:focus{border-color:#f59e0b}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
 </style>
 </head>
@@ -107,7 +100,7 @@ var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6I
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
 var currentDate=new Date();
-var todayJobs=[]; // 今日のDB上の記録
+var todayJobs=[];
 var historyRecords=[];
 
 function getDateStr(d){
@@ -121,6 +114,12 @@ function getDateLabel(d){
   var day=jst.getUTCDate();
   var w=['日','月','火','水','木','金','土'][jst.getUTCDay()];
   return y+'年'+m+'月'+day+'日（'+w+'）';
+}
+function getNowTimeJST(){
+  var jst=new Date(new Date().getTime()+9*60*60*1000);
+  var h=String(jst.getUTCHours()).padStart(2,'0');
+  var m=String(jst.getUTCMinutes()).padStart(2,'0');
+  return h+':'+m;
 }
 
 async function init(){
@@ -157,59 +156,78 @@ async function loadHistory(){
 
 function renderJobs(){
   var container=document.getElementById('jobs-container');
-  if(todayJobs.length===0){
-    container.innerHTML='';
-    return;
-  }
+  if(todayJobs.length===0){container.innerHTML='';return;}
   container.innerHTML=todayJobs.map((job,i)=>jobCardHTML(job,i+1)).join('');
+  // イベント設定
+  todayJobs.forEach(job=>{
+    // フォーカス時に全選択
+    ['sp','sm','ep','em','memo'].forEach(prefix=>{
+      var el=document.getElementById(prefix+'-'+job.id);
+      if(el) el.addEventListener('focus',function(){this.select();});
+    });
+    // 時刻欄：長押しで現在時刻セット
+    ['st','et'].forEach(prefix=>{
+      var el=document.getElementById(prefix+'-'+job.id);
+      if(!el) return;
+      el.addEventListener('focus',function(){this.select();});
+      var timer;
+      el.addEventListener('touchstart',function(){
+        timer=setTimeout(()=>{
+          this.value=getNowTimeJST();
+          showMsg('現在時刻をセットしました','ok');
+        }.bind(this),600);
+      });
+      el.addEventListener('touchend',function(){clearTimeout(timer);});
+      el.addEventListener('touchmove',function(){clearTimeout(timer);});
+    });
+    // 走行距離リアルタイム更新
+    ['sm','em'].forEach(prefix=>{
+      var el=document.getElementById(prefix+'-'+job.id);
+      if(el) el.addEventListener('input',function(){updateDistance(job.id);});
+    });
+  });
 }
 
 function jobCardHTML(job,no){
   var incomplete=!job.end_place&&!job.end_time?'<span class="incomplete-badge">到着未入力</span>':'';
-  var dist='';
-  if(job.start_meter&&job.end_meter&&job.end_meter>job.start_meter){
-    dist='<div class="distance-summary"><span class="distance-label">走行距離</span><span class="distance-value">'+(job.end_meter-job.start_meter)+' km</span></div>';
-  }
+  var jobName=job.job_name||'';
   return `<div class="job-card" id="job-${job.id}">
     <div class="job-header">
-      <span class="job-no">📦 案件 ${no} ${incomplete}</span>
-      <button class="job-del" onclick="deleteJob('${job.id}')">✕ 削除</button>
+      <div class="job-header-left">
+        <span class="job-no">案件 ${no}</span>
+        <input class="job-name-input" type="text" id="jn-${job.id}" value="${jobName}" placeholder="案件名（任意）" onfocus="this.select()">
+        ${incomplete}
+      </div>
+      <button class="job-del" onclick="deleteJob('${job.id}')">✕</button>
     </div>
-    <div class="point-block">
-      <div class="point-title"><div class="point-dot start"></div><span class="point-label start">出発地点</span></div>
-      <div class="input-group"><span class="input-label">場所の名前</span><input class="input-field" type="text" id="sp-${job.id}" value="${job.start_place||''}" placeholder="例：厚木センター"></div>
-      <div class="input-row">
-        <div class="input-group"><span class="input-label">出発時刻</span><input class="input-field" type="time" id="st-${job.id}" value="${job.start_time||''}"></div>
-        <div class="input-group"><span class="input-label">メーター（km）</span><input class="input-field" type="text" inputmode="text" id="sm-${job.id}" value="${job.start_meter||''}" placeholder="123456"></div>
+    <div class="job-body">
+      <div class="point-row">
+        <div class="point-dot start"></div>
+        <input class="field-place" type="text" id="sp-${job.id}" value="${job.start_place||''}" placeholder="出発地点">
+        <input class="field-time" type="time" id="st-${job.id}" value="${job.start_time||''}">
+        <input class="field-meter" type="text" inputmode="text" id="sm-${job.id}" value="${job.start_meter||''}" placeholder="km">
+      </div>
+      <div class="point-row">
+        <div class="point-dot end"></div>
+        <input class="field-place" type="text" id="ep-${job.id}" value="${job.end_place||''}" placeholder="到着地点">
+        <input class="field-time" type="time" id="et-${job.id}" value="${job.end_time||''}">
+        <input class="field-meter" type="text" inputmode="text" id="em-${job.id}" value="${job.end_meter||''}" placeholder="km">
+      </div>
+      <input class="field-memo" type="text" id="memo-${job.id}" value="${job.memo||''}" placeholder="メモ（任意）" onfocus="this.select()">
+      <div class="job-footer">
+        <label class="nextday-check"><input type="checkbox" id="nd-${job.id}" ${job.next_day?'checked':''}> 翌日着</label>
+        <span class="distance-text" id="dist-${job.id}">${job.start_meter&&job.end_meter&&job.end_meter>job.start_meter?(job.end_meter-job.start_meter)+' km':'-- km'}</span>
+        <button class="save-job-btn" onclick="saveJob('${job.id}')">💾 保存</button>
       </div>
     </div>
-    <div class="divider"><div class="divider-line"></div><span class="divider-icon">🚚</span><div class="divider-line"></div></div>
-    <div class="point-block">
-      <div class="point-title"><div class="point-dot end"></div><span class="point-label end">到着地点</span></div>
-      <div class="input-group"><span class="input-label">場所の名前</span><input class="input-field" type="text" id="ep-${job.id}" value="${job.end_place||''}" placeholder="例：横浜配送センター"></div>
-      <div class="input-row">
-        <div class="input-group">
-          <span class="input-label">到着時刻</span>
-          <div class="time-row">
-            <div class="input-group"><input class="input-field" type="time" id="et-${job.id}" value="${job.end_time||''}"></div>
-            <button class="nextday-btn${job.next_day?' active':''}" id="nd-${job.id}" onclick="toggleNextDay('${job.id}')">翌日${job.next_day?' ✓':''}</button>
-          </div>
-        </div>
-        <div class="input-group"><span class="input-label">メーター（km）</span><input class="input-field" type="text" inputmode="text" id="em-${job.id}" value="${job.end_meter||''}" placeholder="123512"></div>
-      </div>
-    </div>
-    ${dist}
-    <button class="save-job-btn" onclick="saveJob('${job.id}')">💾 この案件を保存</button>
   </div>`;
 }
 
-function toggleNextDay(id){
-  var job=todayJobs.find(j=>j.id===id);
-  if(!job) return;
-  job.next_day=!job.next_day;
-  var btn=document.getElementById('nd-'+id);
-  btn.className='nextday-btn'+(job.next_day?' active':'');
-  btn.textContent='翌日'+(job.next_day?' ✓':'');
+function updateDistance(id){
+  var sm=parseInt(document.getElementById('sm-'+id).value)||0;
+  var em=parseInt(document.getElementById('em-'+id).value)||0;
+  var el=document.getElementById('dist-'+id);
+  if(el) el.textContent=sm&&em&&em>sm?(em-sm)+' km':'-- km';
 }
 
 async function addJob(){
@@ -234,19 +252,23 @@ async function saveJob(id){
   var ep=document.getElementById('ep-'+id).value.trim();
   var et=document.getElementById('et-'+id).value.trim();
   var emStr=document.getElementById('em-'+id).value.trim();
+  var nd=document.getElementById('nd-'+id).checked;
+  var jn=document.getElementById('jn-'+id).value.trim();
+  var memo=document.getElementById('memo-'+id).value.trim();
 
-  // メーターバリデーション
   if(smStr&&!/^[0-9]+$/.test(smStr)){showMsg('出発メーターは半角数字で入力してください','err');return;}
   if(emStr&&!/^[0-9]+$/.test(emStr)){showMsg('到着メーターは半角数字で入力してください','err');return;}
 
   var updates={
+    job_name:jn||null,
+    memo:memo||null,
     start_place:sp||null,
     start_time:st||null,
     start_meter:smStr?parseInt(smStr):null,
     end_place:ep||null,
     end_time:et||null,
     end_meter:emStr?parseInt(emStr):null,
-    next_day:job.next_day||false,
+    next_day:nd,
   };
 
   var {error}=await sb.from('gyomu_records').update(updates).eq('id',id);
@@ -263,7 +285,6 @@ async function deleteJob(id){
   var {error}=await sb.from('gyomu_records').delete().eq('id',id);
   if(error){showMsg('エラー: '+error.message,'err');return;}
   todayJobs=todayJobs.filter(j=>j.id!==id);
-  // job_no を振り直し
   todayJobs.forEach((j,i)=>{j.job_no=i+1;});
   renderJobs();
   loadHistory();
@@ -282,8 +303,9 @@ function renderHistory(){
     var jobHTML=jobs.map(j=>{
       var dist=j.start_meter&&j.end_meter&&j.end_meter>j.start_meter?'（'+(j.end_meter-j.start_meter)+'km）':'';
       var nd=j.next_day?'翌日':'';
-      var incomplete=!j.end_place&&!j.end_time?'<span style="color:#e24b4a">到着未入力</span>':'';
-      return '<div class="history-job">案件'+(j.job_no||'?')+': '+(j.start_place||'-')+' '+(j.start_time||'')+'→'+(j.end_place||'未入力')+' '+nd+(j.end_time||'')+dist+' '+incomplete+'</div>';
+      var name=j.job_name?'【'+j.job_name+'】':'案件'+(j.job_no||'?')+':';
+      var incomplete=!j.end_place&&!j.end_time?'<span style="color:#e24b4a"> 到着未入力</span>':'';
+      return '<div class="history-job">'+name+' '+(j.start_place||'-')+' '+(j.start_time||'')+'→'+(j.end_place||'未入力')+' '+nd+(j.end_time||'')+dist+(j.memo?' メモ:'+j.memo:'')+incomplete+'</div>';
     }).join('');
     return '<div class="history-day"><div class="history-date">'+date+' — '+jobs.length+'件</div>'+jobHTML+'</div>';
   }).join('');
@@ -291,17 +313,20 @@ function renderHistory(){
 
 function exportCSV(){
   if(historyRecords.length===0){alert('データがありません');return;}
-  var headers=['日付','案件No','出発地点','出発時刻','出発メーター','到着地点','到着時刻','翌日','到着メーター','走行距離'];
+  var headers=['日付','案件No','案件名','出発地点','出発時刻','出発メーター','到着地点','到着時刻','翌日','到着メーター','走行距離','メモ'];
   var rows=historyRecords.map(r=>{
     var dist=r.start_meter&&r.end_meter?r.end_meter-r.start_meter:'';
-    return[r.date,r.job_no,r.start_place||'',r.start_time||'',r.start_meter||'',r.end_place||'',r.end_time||'',r.next_day?'翌日':'',r.end_meter||'',dist]
+    return[r.date,r.job_no,r.job_name||'',r.start_place||'',r.start_time||'',r.start_meter||'',r.end_place||'',r.end_time||'',r.next_day?'翌日':'',r.end_meter||'',dist,r.memo||'']
       .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
   });
+  // ファイル名に月を追加
+  var now=new Date(new Date().getTime()+9*60*60*1000);
+  var ym=now.getUTCFullYear()+'年'+(now.getUTCMonth()+1)+'月';
   var csv='\uFEFF'+headers.join(',')+'\n'+rows.join('\n');
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url;a.download='業務記録.csv';a.click();
+  a.href=url;a.download='業務記録_'+ym+'.csv';a.click();
   URL.revokeObjectURL(url);
 }
 

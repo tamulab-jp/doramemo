@@ -101,18 +101,7 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div><div class="toggle-label">📋 点呼記録</div><div class="toggle-desc">毎日の点呼を記録</div></div>
       <label class="switch"><input type="checkbox" id="s-tenko" checked><span class="slider"></span></label>
     </div>
-    <div class="toggle-row">
-      <div><div class="toggle-label">💰 売上・経費</div><div class="toggle-desc">収支を簡単管理</div></div>
-      <label class="switch"><input type="checkbox" id="s-sales"><span class="slider"></span></label>
-    </div>
-    <div class="toggle-row">
-      <div><div class="toggle-label">⏰ 勤怠管理</div><div class="toggle-desc">稼働時間を記録</div></div>
-      <label class="switch"><input type="checkbox" id="s-work"><span class="slider"></span></label>
-    </div>
-    <div class="toggle-row">
-      <div><div class="toggle-label">📦 配送管理</div><div class="toggle-desc">配送件数を記録</div></div>
-      <label class="switch"><input type="checkbox" id="s-delivery"><span class="slider"></span></label>
-    </div>
+
     <div class="toggle-row">
       <div><div class="toggle-label">📝 業務記録</div><div class="toggle-desc">案件ごとの業務を記録</div></div>
       <label class="switch"><input type="checkbox" id="s-gyomu"><span class="slider"></span></label>
@@ -141,7 +130,7 @@ async function init(){
   var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
   if(!s){
     await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
-    settings={feature_tenko:true,feature_sales:false,feature_work:false,feature_delivery:false,feature_gyomu:false};
+    settings={feature_tenko:true,feature_gyomu:false};
   } else {
     settings=s;
   }
@@ -183,9 +172,7 @@ async function loadAdminContents(){
 function renderFeatures(){
   var features=[
     {key:'feature_tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
-    {key:'feature_sales',icon:'💰',name:'売上・経費',desc:'収支を簡単管理',url:'sales.html'},
-    {key:'feature_work',icon:'⏰',name:'勤怠管理',desc:'稼働時間を記録',url:'work.html'},
-    {key:'feature_delivery',icon:'📦',name:'配送管理',desc:'配送件数を記録',url:'delivery.html'},
+
     {key:'feature_gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
   ];
 
@@ -208,9 +195,6 @@ function renderFeatures(){
 
 function openSetting(){
   document.getElementById('s-tenko').checked=settings.feature_tenko;
-  document.getElementById('s-sales').checked=settings.feature_sales;
-  document.getElementById('s-work').checked=settings.feature_work;
-  document.getElementById('s-delivery').checked=settings.feature_delivery;
   document.getElementById('s-gyomu').checked=settings.feature_gyomu;
   document.getElementById('setting-modal').classList.add('show');
 }
@@ -219,9 +203,6 @@ function closeSetting(){document.getElementById('setting-modal').classList.remov
 async function saveSetting(){
   var newSettings={
     feature_tenko:document.getElementById('s-tenko').checked,
-    feature_sales:document.getElementById('s-sales').checked,
-    feature_work:document.getElementById('s-work').checked,
-    feature_delivery:document.getElementById('s-delivery').checked,
     feature_gyomu:document.getElementById('s-gyomu').checked,
   };
   await sb.from('user_settings').update(newSettings).eq('user_id',userId);
