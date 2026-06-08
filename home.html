@@ -194,19 +194,18 @@ function renderFeatures(){
 }
 
 function openSetting(){
-  document.getElementById('s-tenko').checked=settings.feature_tenko;
-  document.getElementById('s-gyomu').checked=settings.feature_gyomu;
+  document.getElementById('s-tenko').checked=settings.tenko;
+  document.getElementById('s-gyomu').checked=settings.gyomu;
   document.getElementById('setting-modal').classList.add('show');
 }
 function closeSetting(){document.getElementById('setting-modal').classList.remove('show');}
 
-async function saveSetting(){
-  var newSettings={
-    feature_tenko:document.getElementById('s-tenko').checked,
-    feature_gyomu:document.getElementById('s-gyomu').checked,
+function saveSetting(){
+  settings={
+    tenko:document.getElementById('s-tenko').checked,
+    gyomu:document.getElementById('s-gyomu').checked,
   };
-  await sb.from('user_settings').update(newSettings).eq('user_id',userId);
-  settings=Object.assign(settings,newSettings);
+  saveSettings(settings);
   closeSetting();
   renderFeatures();
 }
