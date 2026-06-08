@@ -48,7 +48,7 @@ input:focus{border-color:#f59e0b}
   <div class="msg" id="msg" style="display:none"></div>
   <div class="toggle" id="tgl" onclick="toggleMode()">アカウントを新規作成</div>
   <div class="reset" onclick="window.location.href='reset.html'">パスワードをお忘れの方</div>
-  <div style="text-align:center;margin-top:1.25rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1</div>
+  <div style="text-align:center;margin-top:1.25rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.1</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -59,6 +59,22 @@ var sb=window.supabase.createClient(SURL,SKEY);
 var isUp=false;
 
 async function init(){
+  // URLのハッシュにaccess_tokenがある場合（メール確認後のリダイレクト）
+  var hash=window.location.hash;
+  if(hash&&hash.includes('access_token')){
+    var {data:{session},error}=await sb.auth.getSession();
+    if(session){
+      window.location.href='home.html';
+      return;
+    }
+    // セッションが取れない場合は少し待ってから再試行
+    setTimeout(async function(){
+      var {data:{session:s2}}=await sb.auth.getSession();
+      if(s2) window.location.href='home.html';
+      else showMsg('メール確認が完了しました。ログインしてください。','ok');
+    },1000);
+    return;
+  }
   var {data:{session}}=await sb.auth.getSession();
   if(session) window.location.href='home.html';
 }
