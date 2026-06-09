@@ -117,24 +117,23 @@ var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
 var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
-var settings=null;
+
+function saveSettings(s){
+  localStorage.setItem('doramemo_features',JSON.stringify(s));
+}
+function loadSettings(){
+  var saved=localStorage.getItem('doramemo_features');
+  if(saved){return JSON.parse(saved);}
+  return {tenko:true,gyomu:true};
+}
+var settings=loadSettings();
 
 async function init(){
   var {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='index.html';return;}
   userId=session.user.id;
-
   var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
   document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
-
-  var {data:s}=await sb.from('user_settings').select('*').eq('user_id',userId).single();
-  if(!s){
-    await sb.from('user_settings').insert({user_id:userId,feature_tenko:true});
-    settings={feature_tenko:true,feature_gyomu:false};
-  } else {
-    settings=s;
-  }
-
   loadAdminContents();
   renderFeatures();
 }
@@ -142,10 +141,8 @@ async function init(){
 async function loadAdminContents(){
   var {data:contents}=await sb.from('admin_contents').select('*').eq('is_active',true).order('sort_order');
   if(!contents||contents.length===0) return;
-
   var notices=contents.filter(c=>c.type==='notice');
   var ads=contents.filter(c=>c.type==='ad');
-
   var noticeArea=document.getElementById('notice-area');
   notices.forEach(n=>{
     noticeArea.innerHTML+=`<div class="notice-card">
@@ -154,7 +151,6 @@ async function loadAdminContents(){
       ${n.link_url?`<a href="${n.link_url}" style="display:inline-block;margin-top:.5rem;font-size:.78rem;color:#f59e0b;font-weight:700;text-decoration:none;" target="_blank">詳しく見る →</a>`:''}
     </div>`;
   });
-
   var adArea=document.getElementById('ad-area');
   ads.forEach(a=>{
     adArea.innerHTML+=`<div class="ad-card">
@@ -170,19 +166,17 @@ async function loadAdminContents(){
 }
 
 function renderFeatures(){
+  settings=loadSettings();
   var features=[
     {key:'tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
     {key:'gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
   ];
-
   var active=features.filter(f=>settings[f.key]);
   var grid=document.getElementById('feature-grid');
-
   if(active.length===0){
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#7a8a9e;font-size:.85rem">⚙️ 右上のボタンから使う機能を選んでください</div>';
     return;
   }
-
   grid.innerHTML=active.map(f=>`
     <div class="feature-card" onclick="window.location.href='${f.url}'">
       <div class="feature-icon">${f.icon}</div>
@@ -193,6 +187,7 @@ function renderFeatures(){
 }
 
 function openSetting(){
+  settings=loadSettings();
   document.getElementById('s-tenko').checked=settings.tenko;
   document.getElementById('s-gyomu').checked=settings.gyomu;
   document.getElementById('setting-modal').classList.add('show');
@@ -212,7 +207,5 @@ function saveSetting(){
 async function logout(){await sb.auth.signOut();window.location.href='index.html';}
 init();
 </script>
-
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.3</div>
 </body>
 </html>
