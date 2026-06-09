@@ -171,9 +171,8 @@ async function loadAdminContents(){
 
 function renderFeatures(){
   var features=[
-    {key:'feature_tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
-
-    {key:'feature_gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
+    {key:'tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
+    {key:'gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
   ];
 
   var active=features.filter(f=>settings[f.key]);
@@ -214,6 +213,6 @@ async function logout(){await sb.auth.signOut();window.location.href='index.html
 init();
 </script>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.2</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.3</div>
 </body>
 </html>
