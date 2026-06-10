@@ -106,6 +106,10 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div><div class="toggle-label">📝 業務記録</div><div class="toggle-desc">案件ごとの業務を記録</div></div>
       <label class="switch"><input type="checkbox" id="s-gyomu"><span class="slider"></span></label>
     </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">📓 メモ帳</div><div class="toggle-desc">自由にメモを記録</div></div>
+      <label class="switch"><input type="checkbox" id="s-memo"><span class="slider"></span></label>
+    </div>
     <button class="modal-btn" onclick="saveSetting()">保存する</button>
     <button class="modal-cancel" onclick="closeSetting()">キャンセル</button>
   </div>
@@ -124,7 +128,7 @@ function saveSettings(s){
 function loadSettings(){
   var saved=localStorage.getItem('doramemo_features');
   if(saved){return JSON.parse(saved);}
-  return {tenko:true,gyomu:true};
+  return {tenko:true,gyomu:true,memo:true};
 }
 var settings=loadSettings();
 
@@ -170,6 +174,7 @@ function renderFeatures(){
   var features=[
     {key:'tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
     {key:'gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
+    {key:'memo',icon:'📓',name:'メモ帳',desc:'自由にメモを記録',url:'memo.html'},
   ];
   var active=features.filter(f=>settings[f.key]);
   var grid=document.getElementById('feature-grid');
@@ -190,6 +195,7 @@ function openSetting(){
   settings=loadSettings();
   document.getElementById('s-tenko').checked=settings.tenko;
   document.getElementById('s-gyomu').checked=settings.gyomu;
+  document.getElementById('s-memo').checked=settings.memo;
   document.getElementById('setting-modal').classList.add('show');
 }
 function closeSetting(){document.getElementById('setting-modal').classList.remove('show');}
@@ -198,6 +204,7 @@ function saveSetting(){
   settings={
     tenko:document.getElementById('s-tenko').checked,
     gyomu:document.getElementById('s-gyomu').checked,
+    memo:document.getElementById('s-memo').checked,
   };
   saveSettings(settings);
   closeSetting();

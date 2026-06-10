@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メモ帳 — ドラメモ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;color:#0f1c35}
+.header{background:#f59e0b;padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-title{font-size:1rem;font-weight:700;color:#fff}
+.back-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 12px;font-size:.78rem;color:#fff;cursor:pointer}
+.main{max-width:480px;margin:0 auto;padding:1rem}
+
+.warning{background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.78rem;color:#92400e;line-height:1.6}
+
+.add-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:12px;padding:14px;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:1rem}
+.add-btn:hover{background:#d97706}
+
+/* メモ一覧 */
+.memo-list{margin-bottom:1rem}
+.memo-card{background:#fff;border-radius:12px;border:1px solid #fde68a;padding:1rem 1.25rem;margin-bottom:.75rem;cursor:pointer;transition:box-shadow .15s}
+.memo-card:hover{box-shadow:0 2px 8px rgba(245,158,11,.2)}
+.memo-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+.memo-title{font-size:.9rem;font-weight:700;color:#0f1c35}
+.memo-date{font-size:.7rem;color:#b0bac8}
+.memo-body{font-size:.78rem;color:#7a8a9e;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.memo-del{background:none;border:none;color:#fca5a5;font-size:.8rem;cursor:pointer;padding:0 4px;flex-shrink:0}
+.empty{padding:3rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+
+/* 編集モーダル */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:1rem;font-weight:700;margin-bottom:1rem;color:#0f1c35}
+.modal input[type=text]{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.9rem;color:#0f1c35;outline:none;margin-bottom:.75rem}
+.modal input[type=text]:focus{border-color:#f59e0b}
+.modal textarea{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.88rem;color:#0f1c35;outline:none;resize:vertical;min-height:200px;line-height:1.7}
+.modal textarea:focus{border-color:#f59e0b}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:1rem}
+.modal-save{background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer}
+.modal-cancel{background:#f7f4f0;color:#5a6a82;border:1px solid #e2e8f4;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-title">📓 メモ帳</span>
+  <button class="back-btn" onclick="window.location.href='home.html'">← ホーム</button>
+</div>
+
+<div class="main">
+  <div class="warning">
+    ⚠️ このメモはこの端末のブラウザに保存されます。ブラウザのデータを削除すると消えますのでご注意ください。
+  </div>
+
+  <button class="add-btn" onclick="openModal()">＋ 新しいメモを追加</button>
+  <button class="add-btn" style="background:#fff;color:#f59e0b;border:1.5px solid #f59e0b;margin-bottom:.75rem;" onclick="downloadMemos()">📥 メモをダウンロード（テキスト）</button>
+
+  <div class="memo-list" id="memo-list"></div>
+</div>
+
+<!-- 編集モーダル -->
+<div class="overlay" id="memo-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">新しいメモ</div>
+    <input type="text" id="memo-title-input" placeholder="タイトル">
+    <textarea id="memo-body-input" placeholder="メモの内容を入力してください"></textarea>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-save" onclick="saveMemo()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.0.1</div>
+
+<script>
+var STORAGE_KEY='doramemo_memos';
+var editingId=null;
+
+function loadMemos(){
+  var saved=localStorage.getItem(STORAGE_KEY);
+  return saved?JSON.parse(saved):[];
+}
+
+function saveMemos(memos){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(memos));
+}
+
+function downloadMemos(){
+  var memos=loadMemos();
+  if(memos.length===0){alert('メモがありません');return;}
+  memos.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+  var text=memos.map(m=>{
+    var date=new Date(m.updated_at).toLocaleString('ja-JP');
+    return '【'+( m.title||'無題')+'】
+更新日時: '+date+'
+
+'+(m.body||'')+'
+
+'+'─'.repeat(30);
+  }).join('
+
+');
+  var now=new Date().toLocaleString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'');
+  var blob=new Blob(['﻿'+text],{type:'text/plain;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='メモ帳_'+now+'.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderMemos(){
+  var memos=loadMemos();
+  var el=document.getElementById('memo-list');
+  if(memos.length===0){
+    el.innerHTML='<div class="empty">メモがありません<br>「＋ 新しいメモを追加」から作成してください</div>';
+    return;
+  }
+  // 更新日時の新しい順に並び替え
+  memos.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+  el.innerHTML=memos.map(m=>{
+    var date=new Date(m.updated_at).toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    var bodyPreview=m.body?m.body.replace(/\n/g,' '):'';
+    return `<div class="memo-card" onclick="openModal('${m.id}')">
+      <div class="memo-card-header">
+        <span class="memo-title">${m.title||'無題'}</span>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span class="memo-date">${date}</span>
+          <button class="memo-del" onclick="event.stopPropagation();deleteMemo('${m.id}')">✕</button>
+        </div>
+      </div>
+      <div class="memo-body">${bodyPreview||'内容なし'}</div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(id){
+  editingId=id||null;
+  var titleEl=document.getElementById('memo-title-input');
+  var bodyEl=document.getElementById('memo-body-input');
+  var modalTitle=document.getElementById('modal-title');
+
+  if(id){
+    var memos=loadMemos();
+    var memo=memos.find(m=>m.id===id);
+    if(memo){
+      titleEl.value=memo.title||'';
+      bodyEl.value=memo.body||'';
+      modalTitle.textContent='メモを編集';
+    }
+  } else {
+    titleEl.value='';
+    bodyEl.value='';
+    modalTitle.textContent='新しいメモ';
+  }
+  document.getElementById('memo-modal').classList.add('show');
+  titleEl.focus();
+}
+
+function closeModal(){
+  document.getElementById('memo-modal').classList.remove('show');
+  editingId=null;
+}
+
+function saveMemo(){
+  var title=document.getElementById('memo-title-input').value.trim();
+  var body=document.getElementById('memo-body-input').value;
+  if(!title&&!body){closeModal();return;}
+
+  var memos=loadMemos();
+  var now=new Date().toISOString();
+
+  if(editingId){
+    var idx=memos.findIndex(m=>m.id===editingId);
+    if(idx>=0){
+      memos[idx].title=title;
+      memos[idx].body=body;
+      memos[idx].updated_at=now;
+    }
+  } else {
+    memos.push({
+      id:Date.now().toString(),
+      title:title,
+      body:body,
+      created_at:now,
+      updated_at:now,
+    });
+  }
+  saveMemos(memos);
+  closeModal();
+  renderMemos();
+}
+
+function deleteMemo(id){
+  if(!confirm('このメモを削除しますか？')) return;
+  var memos=loadMemos().filter(m=>m.id!==id);
+  saveMemos(memos);
+  renderMemos();
+}
+
+renderMemos();
+</script>
+</body>
+</html>
