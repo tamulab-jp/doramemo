@@ -107,7 +107,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .add-job-btn{width:100%;background:#fff;border:2px dashed #f59e0b;border-radius:10px;padding:.875rem;font-size:.88rem;font-weight:700;color:#f59e0b;cursor:pointer;margin-bottom:.75rem}
 
 /* サジェスト */
-.suggest-wrap{position:relative;flex:1;min-width:0}
+.suggest-wrap{position:relative;flex:1;min-width:0;max-width:calc(100% - 170px)}
 .suggest-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #fde68a;border-radius:6px;z-index:50;max-height:150px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
 .suggest-item{padding:8px 12px;font-size:.85rem;cursor:pointer;border-bottom:1px solid #fef9ee}
 .suggest-item:last-child{border-bottom:none}
@@ -332,7 +332,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.1</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.3</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -357,7 +357,11 @@ var basicInfo={name:'',car:''};
 
 function loadBasicInfo(){
   var saved=localStorage.getItem('doramemo_basic');
-  if(saved) basicInfo=JSON.parse(saved);
+  if(saved){
+    try{basicInfo=JSON.parse(saved);}catch(e){basicInfo={name:'',car:''};}
+  } else {
+    basicInfo={name:'',car:''};
+  }
   return basicInfo;
 }
 
@@ -373,9 +377,9 @@ function saveBasicInfo(){
 }
 
 function openBasicInfo(isFirst){
-  loadBasicInfo();
-  document.getElementById('info-name').value=basicInfo.name||'';
-  document.getElementById('info-car').value=basicInfo.car||'';
+  var info=loadBasicInfo();
+  document.getElementById('info-name').value=info.name||'';
+  document.getElementById('info-car').value=info.car||'';
   document.getElementById('info-modal-sub').textContent=isFirst?
     '初回設定です。乗務員名と車両番号を入力してください。':
     '乗務員名と車両番号を変更できます。';
@@ -434,7 +438,7 @@ function updateUI(){
   if(beforeDone){
     document.getElementById('badge-before').textContent='完了';
     document.getElementById('badge-before').className='section-badge badge-done';
-    document.getElementById('body-before').innerHTML='<div class="msg ok">乗務前点呼完了 ✓ メーター: '+(tenkoRecords.before.meter_value||'-')+' km</div>';
+    document.getElementById('body-before').innerHTML='<div class="msg ok" style="margin-bottom:.75rem">乗務前点呼完了 ✓ メーター: '+(tenkoRecords.before.meter_value||'-')+' km</div><button class="send-btn" style="background:#7a8a9e;font-size:.85rem;padding:10px;" onclick="resetTenko(\'before\')">↩ 送信し直す</button>';
   }
 
   // 業務記録セクション
@@ -454,7 +458,7 @@ function updateUI(){
   }
 
   if(afterDone){
-    document.getElementById('body-after').innerHTML='<div class="msg ok">乗務後点呼完了 ✓ メーター: '+(tenkoRecords.after.meter_value||'-')+' km</div>';
+    document.getElementById('body-after').innerHTML='<div class="msg ok" style="margin-bottom:.75rem">乗務後点呼完了 ✓ メーター: '+(tenkoRecords.after.meter_value||'-')+' km</div><button class="send-btn after-mode" style="font-size:.85rem;padding:10px;" onclick="resetTenko(\'after\')">↩ 送信し直す</button>';
     document.getElementById('main-bg').className='main bg-after';
   } else if(beforeDone){
     document.getElementById('main-bg').className='main bg-before';
@@ -473,6 +477,73 @@ function updateStatus(dotId,valId,done,doneText,pendingText){
     val.className='status-value pending';
     val.textContent=pendingText;
   }
+}
+
+function resetTenko(type){
+  tenkoRecords[type]=null;
+  if(type==='before'){
+    // 乗務前フォームを再表示
+    document.getElementById('body-before').innerHTML=beforeFormHTML();
+    document.getElementById('badge-before').textContent='未完了';
+    document.getElementById('badge-before').className='section-badge badge-pending';
+  } else {
+    // 乗務後フォームを再表示
+    document.getElementById('body-after').innerHTML=afterFormHTML();
+    document.getElementById('badge-after').textContent='未完了';
+    document.getElementById('badge-after').className='section-badge badge-pending';
+  }
+}
+
+function beforeFormHTML(){
+  return '<span class="field-label">メーター値（km）</span>'+
+    '<input class="field-input" type="text" inputmode="text" id="before-meter" placeholder="例：123456" onfocus="this.select()">'+
+    '<div class="more-toggle" onclick="toggleMore(\'before\')">▼ アルコール・健康状態を入力する</div>'+
+    '<div class="more-detail" id="more-before">'+
+      '<span class="field-label">アルコール検知値（mg/L）</span>'+
+      '<div class="alc-row"><input class="field-input" type="text" inputmode="text" id="before-alc" placeholder="0.00" oninput="checkAlc(\'before-alc\',\'before-alc-badge\')" onfocus="this.select()"><span class="alc-badge ok" id="before-alc-badge">正常</span></div>'+
+      '<span class="field-label">健康状態</span>'+
+      '<div class="radio-group">'+
+        '<div class="radio-btn active" id="bh-good" onclick="setRadio(\'health-before\',\'良好\',\'bh-good\',\'bh-normal\',\'bh-bad\')">良好</div>'+
+        '<div class="radio-btn" id="bh-normal" onclick="setRadio(\'health-before\',\'普通\',\'bh-good\',\'bh-normal\',\'bh-bad\')">普通</div>'+
+        '<div class="radio-btn" id="bh-bad" onclick="setRadio(\'health-before\',\'不良\',\'bh-good\',\'bh-normal\',\'bh-bad\')">不良</div>'+
+      '</div>'+
+      '<span class="field-label">疲労・睡眠</span>'+
+      '<div class="radio-group">'+
+        '<div class="radio-btn active" id="bf-good" onclick="setRadio(\'fatigue-before\',\'問題なし\',\'bf-good\',\'bf-tired\',\'bf-bad\')">問題なし</div>'+
+        '<div class="radio-btn" id="bf-tired" onclick="setRadio(\'fatigue-before\',\'やや疲労\',\'bf-good\',\'bf-tired\',\'bf-bad\')">やや疲労</div>'+
+        '<div class="radio-btn" id="bf-bad" onclick="setRadio(\'fatigue-before\',\'疲労あり\',\'bf-good\',\'bf-tired\',\'bf-bad\')">疲労あり</div>'+
+      '</div>'+
+      '<span class="field-label">特記事項</span>'+
+      '<textarea class="field-input" id="before-notes" placeholder="特記事項があれば入力" style="resize:vertical;min-height:60px;"></textarea>'+
+    '</div>'+
+    '<button class="send-btn" id="btn-before" onclick="submitTenko(\'before\')">🌅 乗務前点呼を送信</button>'+
+    '<div class="msg" id="msg-before" style="display:none"></div>';
+}
+
+function afterFormHTML(){
+  return '<span class="field-label">メーター値（km）</span>'+
+    '<input class="field-input" type="text" inputmode="text" id="after-meter" placeholder="例：123512" onfocus="this.select()">'+
+    '<div class="more-toggle" onclick="toggleMore(\'after\')">▼ アルコール・健康状態を入力する</div>'+
+    '<div class="more-detail" id="more-after">'+
+      '<span class="field-label">アルコール検知値（mg/L）</span>'+
+      '<div class="alc-row"><input class="field-input" type="text" inputmode="text" id="after-alc" placeholder="0.00" oninput="checkAlc(\'after-alc\',\'after-alc-badge\')" onfocus="this.select()"><span class="alc-badge ok" id="after-alc-badge">正常</span></div>'+
+      '<span class="field-label">健康状態</span>'+
+      '<div class="radio-group">'+
+        '<div class="radio-btn active" id="ah-good" onclick="setRadio(\'health-after\',\'良好\',\'ah-good\',\'ah-normal\',\'ah-bad\')">良好</div>'+
+        '<div class="radio-btn" id="ah-normal" onclick="setRadio(\'health-after\',\'普通\',\'ah-good\',\'ah-normal\',\'ah-bad\')">普通</div>'+
+        '<div class="radio-btn" id="ah-bad" onclick="setRadio(\'health-after\',\'不良\',\'ah-good\',\'ah-normal\',\'ah-bad\')">不良</div>'+
+      '</div>'+
+      '<span class="field-label">疲労・睡眠</span>'+
+      '<div class="radio-group">'+
+        '<div class="radio-btn active" id="af-good" onclick="setRadio(\'fatigue-after\',\'問題なし\',\'af-good\',\'af-tired\',\'af-bad\')">問題なし</div>'+
+        '<div class="radio-btn" id="af-tired" onclick="setRadio(\'fatigue-after\',\'やや疲労\',\'af-good\',\'af-tired\',\'af-bad\')">やや疲労</div>'+
+        '<div class="radio-btn" id="af-bad" onclick="setRadio(\'fatigue-after\',\'疲労あり\',\'af-good\',\'af-tired\',\'af-bad\')">疲労あり</div>'+
+      '</div>'+
+      '<span class="field-label">特記事項</span>'+
+      '<textarea class="field-input" id="after-notes" placeholder="特記事項があれば入力" style="resize:vertical;min-height:60px;"></textarea>'+
+    '</div>'+
+    '<button class="send-btn after-mode" id="btn-after" onclick="submitTenko(\'after\')">🌙 乗務後点呼を送信</button>'+
+    '<div class="msg" id="msg-after" style="display:none"></div>';
 }
 
 async function submitTenko(type){
@@ -710,7 +781,7 @@ function renderHistory(){
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
   loadBasicInfo();
-  var appVer='ドラメモ v2.0.1';
+  var appVer='ドラメモ v2.0.3';
   var rows=['\uFEFF業務管理レポート'];
   rows.push('乗務員名,'+basicInfo.name);
   rows.push('車両番号,'+basicInfo.car);
