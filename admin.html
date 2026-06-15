@@ -196,6 +196,7 @@ async function adminLogin(){
 }
 
 async function init(){
+  try{
   var {data:{session}}=await sb.auth.getSession();
   if(session&&session.user.email===ADMIN_EMAIL){
     showAdmin();
@@ -208,6 +209,7 @@ function showAdmin(){
   loadStats();
   loadUsers();
   loadContents();
+  }catch(e){console.error('init error:',e);}
 }
 
 async function adminLogout(){
@@ -217,13 +219,11 @@ async function adminLogout(){
 }
 
 async function loadUsers(){
+  try{
   var {data:profiles}=await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
+  var {data:tenkoList}=await sb.from('tenko_records').select('user_id,date').order('date',{ascending:false});
   var el=document.getElementById('users-list');
   if(!profiles||profiles.length===0){el.innerHTML='<div class="empty">ユーザーがいません</div>';return;}
-
-  // 各ユーザーの最終点呼日をtenko_recordsから取得
-  var {data:tenkoList}=await sb.from('tenko_records').select('user_id,date').order('date',{ascending:false});
-
   var rows=profiles.map(p=>{
     var regDate=p.created_at?new Date(p.created_at).toLocaleDateString('ja-JP'):'';
     var lastTenko=tenkoList&&tenkoList.find(t=>t.user_id===p.id);
@@ -238,9 +238,11 @@ async function loadUsers(){
     <thead><tr><th>氏名</th><th>登録日</th><th>最終点呼日</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+  }catch(e){document.getElementById('users-list').innerHTML='<div class="empty">読込エラー: '+e.message+'</div>';}
 }
 
 async function loadStats(){
+  try{
   var {data:profiles}=await sb.from('user_profiles').select('id');
   var {data:contents}=await sb.from('admin_contents').select('id,is_active');
   var total=profiles?profiles.length:0;
@@ -252,6 +254,7 @@ async function loadStats(){
 }
 
 async function loadContents(){
+  try{
   var {data}=await sb.from('admin_contents').select('*').order('sort_order').order('created_at',{ascending:false});
   var el=document.getElementById('contents-list');
   if(!data||data.length===0){el.innerHTML='<div class="empty">コンテンツがありません。「＋ 追加」から作成してください。</div>';return;}
@@ -330,5 +333,7 @@ async function deleteContent(id){
 
 init();
 </script>
+
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.4</div>
 </body>
 </html>

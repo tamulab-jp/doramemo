@@ -33,6 +33,11 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .memo-body{font-size:.78rem;color:#7a8a9e;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .memo-del{background:none;border:none;color:#fca5a5;font-size:.8rem;cursor:pointer;padding:0 4px;flex-shrink:0}
 .empty{padding:3rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+.search-wrap{position:relative;margin-bottom:.75rem}
+.search-input{width:100%;border:1.5px solid #fde68a;border-radius:10px;padding:10px 40px 10px 14px;font-size:.9rem;color:#0f1c35;outline:none;background:#fff}
+.search-input:focus{border-color:#f59e0b}
+.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#b0bac8;font-size:1rem;cursor:pointer;display:none}
+.search-count{font-size:.75rem;color:#7a8a9e;text-align:right;margin-bottom:.5rem}
 
 /* 編集モーダル */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
@@ -61,6 +66,11 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 
   <button class="add-btn" onclick="openModal()">＋ 新しいメモを追加</button>
   <button class="add-btn" style="background:#fff;color:#f59e0b;border:1.5px solid #f59e0b;margin-bottom:.75rem;" onclick="downloadMemos()">📥 メモをダウンロード（テキスト）</button>
+  <div class="search-wrap">
+    <input class="search-input" type="text" id="search-input" placeholder="🔍 キーワードで検索..." oninput="onSearch()">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+  </div>
+  <div class="search-count" id="search-count"></div>
 
   <div class="memo-list" id="memo-list"></div>
 </div>
@@ -69,8 +79,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 <div class="overlay" id="memo-modal">
   <div class="modal">
     <div class="modal-title" id="modal-title">新しいメモ</div>
-    <input type="text" id="memo-title-input" placeholder="タイトル">
-    <textarea id="memo-body-input" placeholder="メモの内容を入力してください"></textarea>
+    <textarea id="memo-body-input" placeholder="1行目がタイトルになります"></textarea>
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
       <button class="modal-save" onclick="saveMemo()">保存する</button>
@@ -78,9 +87,26 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.0.1</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.0.3</div>
 
 <script>
+var searchKeyword='';
+
+function onSearch(){
+  var input=document.getElementById('search-input');
+  searchKeyword=input.value;
+  var clearBtn=document.getElementById('search-clear');
+  clearBtn.style.display=searchKeyword?'block':'none';
+  renderMemos();
+}
+
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  searchKeyword='';
+  document.getElementById('search-clear').style.display='none';
+  renderMemos();
+}
+
 var STORAGE_KEY='doramemo_memos';
 var editingId=null;
 
@@ -124,12 +150,28 @@ function downloadMemos(){
 function renderMemos(){
   var memos=loadMemos();
   var el=document.getElementById('memo-list');
+  var countEl=document.getElementById('search-count');
   if(memos.length===0){
     el.innerHTML='<div class="empty">メモがありません<br>「＋ 新しいメモを追加」から作成してください</div>';
+    countEl.textContent='';
     return;
   }
   // 更新日時の新しい順に並び替え
   memos.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+  // 検索フィルタ
+  var filtered=memos;
+  if(searchKeyword){
+    var kw=searchKeyword.toLowerCase();
+    filtered=memos.filter(m=>(m.title||'').toLowerCase().includes(kw)||(m.body||'').toLowerCase().includes(kw));
+    countEl.textContent=filtered.length+'件見つかりました（全'+memos.length+'件）';
+  } else {
+    countEl.textContent=memos.length+'件';
+  }
+  if(filtered.length===0){
+    el.innerHTML='<div class="empty">「'+searchKeyword+'」に一致するメモがありません</div>';
+    return;
+  }
+  memos=filtered;
   el.innerHTML=memos.map(m=>{
     var date=new Date(m.updated_at).toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     var bodyPreview=m.body?m.body.replace(/\n/g,' '):'';
@@ -148,7 +190,6 @@ function renderMemos(){
 
 function openModal(id){
   editingId=id||null;
-  var titleEl=document.getElementById('memo-title-input');
   var bodyEl=document.getElementById('memo-body-input');
   var modalTitle=document.getElementById('modal-title');
 
@@ -156,17 +197,15 @@ function openModal(id){
     var memos=loadMemos();
     var memo=memos.find(m=>m.id===id);
     if(memo){
-      titleEl.value=memo.title||'';
       bodyEl.value=memo.body||'';
       modalTitle.textContent='メモを編集';
     }
   } else {
-    titleEl.value='';
     bodyEl.value='';
     modalTitle.textContent='新しいメモ';
   }
   document.getElementById('memo-modal').classList.add('show');
-  titleEl.focus();
+  bodyEl.focus();
 }
 
 function closeModal(){
@@ -175,9 +214,10 @@ function closeModal(){
 }
 
 function saveMemo(){
-  var title=document.getElementById('memo-title-input').value.trim();
   var body=document.getElementById('memo-body-input').value;
-  if(!title&&!body){closeModal();return;}
+  if(!body.trim()){closeModal();return;}
+  // 1行目をタイトルとして使用
+  var title=body.split('\n')[0].trim().slice(0,30);
 
   var memos=loadMemos();
   var now=new Date().toISOString();
