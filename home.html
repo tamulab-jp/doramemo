@@ -134,7 +134,7 @@ function saveSettings(s){
 function loadSettings(){
   var saved=localStorage.getItem('doramemo_features');
   if(saved){return JSON.parse(saved);}
-  return {tenko:true,gyomu:true,memo:true};
+  return {gyomu:true,memo:true};
 }
 var settings=loadSettings();
 
@@ -178,8 +178,7 @@ async function loadAdminContents(){
 function renderFeatures(){
   settings=loadSettings();
   var features=[
-    {key:'tenko',icon:'📋',name:'点呼記録',desc:'毎日の点呼を記録',url:'tenko.html'},
-    {key:'gyomu',icon:'📝',name:'業務記録',desc:'案件ごとの業務を記録',url:'gyomu.html'},
+    {key:'gyomu',icon:'🚚',name:'業務管理',desc:'点呼・業務記録を一括管理',url:'gyomu.html'},
     {key:'memo',icon:'📓',name:'メモ帳',desc:'自由にメモを記録',url:'memo.html'},
   ];
   var active=features.filter(f=>settings[f.key]);
@@ -199,7 +198,6 @@ function renderFeatures(){
 
 function openSetting(){
   settings=loadSettings();
-  document.getElementById('s-tenko').checked=settings.tenko;
   document.getElementById('s-gyomu').checked=settings.gyomu;
   document.getElementById('s-memo').checked=settings.memo;
   document.getElementById('setting-modal').classList.add('show');
@@ -208,7 +206,6 @@ function closeSetting(){document.getElementById('setting-modal').classList.remov
 
 function saveSetting(){
   settings={
-    tenko:document.getElementById('s-tenko').checked,
     gyomu:document.getElementById('s-gyomu').checked,
     memo:document.getElementById('s-memo').checked,
   };

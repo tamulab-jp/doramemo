@@ -2,102 +2,312 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#f59e0b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ドラメモ">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>業務記録 — ドラメモ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>業務管理 — ドラメモ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f59e0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ドラメモ">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;color:#0f1c35}
 .header{background:#f59e0b;padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .header-title{font-size:1rem;font-weight:700;color:#fff}
+.header-right{display:flex;gap:.5rem;align-items:center}
 .back-btn{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 12px;font-size:.78rem;color:#fff;cursor:pointer}
+.help-btn{background:rgba(255,255,255,.2);border:none;border-radius:50%;width:32px;height:32px;font-size:1rem;color:#fff;cursor:pointer;font-weight:700}
 .main{max-width:480px;margin:0 auto;padding:1rem}
 
-.date-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.75rem;background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.75rem}
-.date-btn{background:#fef3c7;border:none;border-radius:6px;padding:5px 12px;font-size:.85rem;cursor:pointer;color:#92400e;font-weight:700}
-.date-label{font-size:.9rem;font-weight:700}
+/* ステータスバー */
+.status-bar{background:#fff;border-radius:12px;border:1px solid #fde68a;padding:.875rem 1.25rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+.status-item{text-align:center;flex:1}
+.status-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 4px}
+.status-dot.done{background:#22c55e}
+.status-dot.pending{background:#e2e8f4}
+.status-label{font-size:.7rem;color:#7a8a9e}
+.status-value{font-size:.75rem;font-weight:700}
+.status-value.done{color:#166534}
+.status-value.pending{color:#b0bac8}
+.status-arrow{color:#fde68a;font-size:1rem}
 
-.job-card{background:#fff;border-radius:14px;border:1px solid #fde68a;margin-bottom:.75rem;overflow:hidden}
-.job-header{background:#fef3c7;padding:.5rem .875rem;display:flex;align-items:center;justify-content:space-between}
-.job-header-left{display:flex;align-items:center;gap:.5rem;flex:1}
-.job-no{font-size:.78rem;font-weight:700;color:#92400e;white-space:nowrap}
-.job-name-input{border:1px solid #fde68a;border-radius:6px;padding:3px 8px;font-size:.78rem;color:#92400e;background:#fff8e7;width:110px;outline:none}
-.job-name-input:focus{border-color:#f59e0b}
-.incomplete-badge{font-size:.65rem;background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:10px;font-weight:700;white-space:nowrap}
-.job-del{background:none;border:none;color:#fca5a5;font-size:.75rem;cursor:pointer;padding:0 4px}
+/* セクション */
+.section{background:#fff;border-radius:14px;border:1px solid #fde68a;margin-bottom:1rem;overflow:hidden}
+.section-header{background:#fef3c7;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.section-title{font-size:.9rem;font-weight:700;color:#92400e;display:flex;align-items:center;gap:.5rem}
+.section-badge{font-size:.68rem;padding:3px 8px;border-radius:10px;font-weight:700}
+.badge-done{background:#dcfce7;color:#166534}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-locked{background:#e2e8f4;color:#94a3b8}
+.section-body{padding:1.25rem}
+.section-locked{padding:1.5rem;text-align:center;color:#b0bac8;font-size:.85rem}
 
-.job-body{padding:.75rem .875rem}
-.point-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
-.point-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.point-dot.start{background:#f59e0b}
-.point-dot.end{background:#0a1628}
-.field-place{flex:1;border:1px solid #fde68a;border-radius:6px;padding:5px 7px;font-size:.8rem;color:#0f1c35;outline:none;min-width:0}
-.field-place:focus{border-color:#f59e0b}
-.field-time{border:1px solid #fde68a;border-radius:6px;padding:5px 4px;font-size:.78rem;color:#0f1c35;outline:none;width:88px;flex-shrink:0}
-.field-time:focus{border-color:#f59e0b}
-.field-meter{border:1px solid #fde68a;border-radius:6px;padding:5px 5px;font-size:.78rem;color:#0f1c35;outline:none;width:65px;flex-shrink:0;text-align:center}
-.field-meter:focus{border-color:#f59e0b}
+/* 点呼フォーム */
+.tenko-type{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
+.type-card{padding:1.25rem .5rem;border-radius:12px;border:2px solid #fde68a;background:#fef9ee;text-align:center;cursor:pointer;transition:all .15s}
+.type-card.active{border-color:#f59e0b;background:#fff8e7}
+.type-card.active-after{border-color:#1e3a5f;background:#f0f4ff}
+.type-icon{font-size:1.8rem;margin-bottom:.25rem}
+.type-label{font-size:.9rem;font-weight:700;color:#0f1c35}
+.type-sub{font-size:.7rem;color:#7a8a9e}
 
-.job-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.5rem}
-.nextday-check{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#7a8a9e;cursor:pointer}
-.nextday-check input{cursor:pointer}
-.distance-text{font-size:.72rem;color:#92400e;font-weight:700}
-.save-job-btn{background:#0a1628;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:.72rem;font-weight:700;cursor:pointer}
-.save-job-btn:disabled{opacity:.5}
+.field-label{font-size:.85rem;color:#5a6a82;margin-bottom:.4rem;margin-top:.75rem;display:block}
+.field-input{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:12px;font-size:1rem;color:#0f1c35;outline:none;background:#fff}
+.field-input:focus{border-color:#f59e0b}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 
-.add-job-btn{width:100%;background:#fff;border:2px dashed #f59e0b;border-radius:14px;padding:.875rem;font-size:.88rem;font-weight:700;color:#f59e0b;cursor:pointer;margin-bottom:.75rem}
-.add-job-btn:hover{background:#fef9ee}
+.radio-group{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.radio-btn{padding:8px 14px;border-radius:8px;border:1.5px solid #fde68a;background:#fef9ee;cursor:pointer;font-size:.85rem;font-weight:600;color:#5a6a82}
+.radio-btn.active{border-color:#f59e0b;background:#fef3c7;color:#92400e}
+.radio-btn.ng-active{border-color:#e24b4a;background:#fee2e2;color:#991b1b}
 
-.msg{font-size:.82rem;text-align:center;padding:.5rem;border-radius:6px;margin-bottom:.75rem}
+.alc-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}
+.alc-row .field-input{flex:1;margin:0}
+.alc-badge{padding:6px 12px;border-radius:6px;font-size:.8rem;font-weight:700;white-space:nowrap}
+.alc-badge.ok{background:#dcfce7;color:#166534}
+.alc-badge.ng{background:#fee2e2;color:#991b1b}
+
+.more-toggle{text-align:center;font-size:.8rem;color:#f59e0b;cursor:pointer;font-weight:600;margin-bottom:.75rem}
+.more-detail{display:none}
+.more-detail.open{display:block}
+
+/* 送信ボタン（大きく・目立つ） */
+.send-btn{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:12px;padding:18px;font-size:1.1rem;font-weight:900;cursor:pointer;letter-spacing:1px;transition:background .2s;margin-top:.75rem}
+.send-btn:hover{background:#d97706}
+.send-btn:disabled{opacity:.6}
+.send-btn.after-mode{background:#1e3a5f}
+.send-btn.after-mode:hover{background:#0a1628}
+
+.msg{font-size:.85rem;text-align:center;padding:.75rem;border-radius:8px;margin-top:.75rem}
 .msg.ok{background:#dcfce7;color:#166534}
 .msg.err{background:#fee2e2;color:#991b1b}
 
-.history-section{background:#fff;border-radius:12px;border:1px solid #fde68a;overflow:hidden;margin-bottom:1rem}
-.history-header{padding:.875rem 1.25rem;border-bottom:1px solid #fef3c7;font-size:.85rem;font-weight:700;color:#92400e;display:flex;justify-content:space-between;align-items:center}
+/* 業務記録 */
+.job-card{background:#f7f4f0;border-radius:10px;padding:1rem;margin-bottom:.75rem}
+.job-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.job-no{font-size:.8rem;font-weight:700;color:#92400e}
+.job-name-input{border:1px solid #fde68a;border-radius:6px;padding:4px 8px;font-size:.8rem;color:#92400e;background:#fff;width:110px;outline:none}
+.incomplete-badge{font-size:.65rem;background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:10px}
+.job-del{background:none;border:none;color:#fca5a5;font-size:.8rem;cursor:pointer}
+
+.point-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
+.point-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.point-dot.start{background:#f59e0b}
+.point-dot.end{background:#0a1628}
+.field-place{flex:1;border:1px solid #fde68a;border-radius:6px;padding:8px;font-size:.88rem;color:#0f1c35;outline:none;min-width:0}
+.field-place:focus{border-color:#f59e0b}
+.field-time{border:1px solid #fde68a;border-radius:6px;padding:8px 4px;font-size:.82rem;color:#0f1c35;outline:none;width:92px;flex-shrink:0}
+.field-meter{border:1px solid #fde68a;border-radius:6px;padding:8px 5px;font-size:.82rem;color:#0f1c35;outline:none;width:68px;flex-shrink:0;text-align:center}
+.field-memo{width:100%;border:1px solid #fde68a;border-radius:6px;padding:7px;font-size:.82rem;color:#0f1c35;outline:none;margin-top:.4rem}
+
+.job-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.5rem}
+.nextday-check{display:flex;align-items:center;gap:4px;font-size:.75rem;color:#7a8a9e;cursor:pointer}
+.distance-text{font-size:.75rem;color:#92400e;font-weight:700}
+.save-job-btn{background:#0a1628;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer}
+
+.add-job-btn{width:100%;background:#fff;border:2px dashed #f59e0b;border-radius:10px;padding:.875rem;font-size:.88rem;font-weight:700;color:#f59e0b;cursor:pointer;margin-bottom:.75rem}
+
+/* サジェスト */
+.suggest-wrap{position:relative;flex:1;min-width:0}
+.suggest-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #fde68a;border-radius:6px;z-index:50;max-height:150px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.suggest-item{padding:8px 12px;font-size:.85rem;cursor:pointer;border-bottom:1px solid #fef9ee}
+.suggest-item:last-child{border-bottom:none}
+.suggest-item:hover{background:#fef9ee}
+
+/* CSV・履歴 */
+.csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:6px 12px;font-size:.78rem;font-weight:700;cursor:pointer}
 .history-day{padding:.875rem 1.25rem;border-bottom:1px solid #fef9ee}
 .history-day:last-child{border-bottom:none}
-.history-date{font-size:.82rem;font-weight:700;margin-bottom:4px;color:#0f1c35}
+.history-date{font-size:.85rem;font-weight:700;margin-bottom:4px}
 .history-job{font-size:.75rem;color:#7a8a9e;line-height:1.8;padding-left:.5rem;border-left:2px solid #fde68a;margin-bottom:.25rem}
-.history-job:last-child{margin-bottom:0}
-.csv-btn{background:#fff;border:1.5px solid #f59e0b;color:#92400e;border-radius:6px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:pointer}
-.empty{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
-.field-memo{width:100%;border:1px solid #fde68a;border-radius:6px;padding:5px 7px;font-size:.78rem;color:#0f1c35;outline:none;margin-top:.4rem}
-.field-memo:focus{border-color:#f59e0b}
-.loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.82rem}
+.empty{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+.loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
+
+/* ヘルプモーダル */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.help-modal{background:#fff;border-radius:16px;padding:1.5rem;width:90%;max-width:400px;max-height:85vh;overflow-y:auto}
+.help-title{font-size:1rem;font-weight:700;margin-bottom:1rem;color:#0f1c35}
+.help-section{margin-bottom:1rem}
+.help-section-title{font-size:.85rem;font-weight:700;color:#f59e0b;margin-bottom:.4rem}
+.help-text{font-size:.82rem;color:#5a6a82;line-height:1.8}
+.help-close{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:1rem}
+
+/* 背景色切り替え */
+.bg-before{background:#f7f4f0;transition:background .5s}
+.bg-after{background:linear-gradient(160deg,#1e3a5f 0%,#0a1628 100%);transition:background .5s;min-height:100vh}
+.bg-after .section{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.bg-after .section-header{background:rgba(255,255,255,.05)}
+.bg-after .section-title{color:#fde68a}
+.bg-after .job-card{background:rgba(255,255,255,.05)}
+.bg-after .field-place,.bg-after .field-time,.bg-after .field-meter,.bg-after .field-memo,.bg-after .job-name-input{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+.bg-after .add-job-btn{background:rgba(255,255,255,.05);color:#fde68a;border-color:rgba(255,255,255,.2)}
+.bg-after .history-day{border-color:rgba(255,255,255,.1)}
+.bg-after .history-date{color:#fff}
+.bg-after .history-job{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.2)}
+.bg-after .empty{color:rgba(255,255,255,.4)}
+.bg-after .distance-text{color:#fde68a}
 </style>
 </head>
 <body>
 <div class="header">
-  <span class="header-title">📝 業務記録</span>
-  <button class="back-btn" onclick="window.location.href='home.html'">← ホーム</button>
+  <span class="header-title">🚚 業務管理</span>
+  <div class="header-right">
+    <button class="help-btn" onclick="openHelp()">？</button>
+    <button class="back-btn" onclick="window.location.href='home.html'">← ホーム</button>
+  </div>
 </div>
 
-<div class="main">
-  <div class="date-nav">
-    <button class="date-btn" onclick="changeDate(-1)">◀</button>
-    <span class="date-label" id="date-label">-</span>
-    <button class="date-btn" onclick="changeDate(1)">▶</button>
+<div class="main bg-before" id="main-bg">
+
+  <!-- ステータスバー -->
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-dot pending" id="dot-before"></div>
+      <div class="status-label">乗務前点呼</div>
+      <div class="status-value pending" id="val-before">未完了</div>
+    </div>
+    <div class="status-arrow">→</div>
+    <div class="status-item">
+      <div class="status-dot pending" id="dot-work"></div>
+      <div class="status-label">業務記録</div>
+      <div class="status-value pending" id="val-work">待機中</div>
+    </div>
+    <div class="status-arrow">→</div>
+    <div class="status-item">
+      <div class="status-dot pending" id="dot-after"></div>
+      <div class="status-label">乗務後点呼</div>
+      <div class="status-value pending" id="val-after">待機中</div>
+    </div>
   </div>
 
-  <div id="jobs-container"></div>
-  <div class="msg" id="msg" style="display:none"></div>
-  <button class="add-job-btn" onclick="addJob()">＋ 案件を追加する</button>
+  <!-- 乗務前点呼 -->
+  <div class="section" id="section-before">
+    <div class="section-header">
+      <span class="section-title">🌅 乗務前点呼</span>
+      <span class="section-badge badge-pending" id="badge-before">未完了</span>
+    </div>
+    <div class="section-body" id="body-before">
+      <span class="field-label">メーター値（km）</span>
+      <input class="field-input" type="text" inputmode="text" id="before-meter" placeholder="例：123456" autofocus onfocus="this.select()">
 
-  <div class="history-section">
-    <div class="history-header">
-      <span>過去の業務記録</span>
+      <div class="more-toggle" onclick="toggleMore('before')">▼ アルコール・健康状態を入力する</div>
+      <div class="more-detail" id="more-before">
+        <span class="field-label">アルコール検知値（mg/L）</span>
+        <div class="alc-row">
+          <input class="field-input" type="text" inputmode="text" id="before-alc" placeholder="0.00" oninput="checkAlc('before-alc','before-alc-badge')" onfocus="this.select()">
+          <span class="alc-badge ok" id="before-alc-badge">正常</span>
+        </div>
+        <span class="field-label">健康状態</span>
+        <div class="radio-group">
+          <div class="radio-btn active" id="bh-good" onclick="setRadio('health-before','良好','bh-good','bh-normal','bh-bad')">良好</div>
+          <div class="radio-btn" id="bh-normal" onclick="setRadio('health-before','普通','bh-good','bh-normal','bh-bad')">普通</div>
+          <div class="radio-btn" id="bh-bad" onclick="setRadio('health-before','不良','bh-good','bh-normal','bh-bad')">不良</div>
+        </div>
+        <span class="field-label">疲労・睡眠</span>
+        <div class="radio-group">
+          <div class="radio-btn active" id="bf-good" onclick="setRadio('fatigue-before','問題なし','bf-good','bf-tired','bf-bad')">問題なし</div>
+          <div class="radio-btn" id="bf-tired" onclick="setRadio('fatigue-before','やや疲労','bf-good','bf-tired','bf-bad')">やや疲労</div>
+          <div class="radio-btn" id="bf-bad" onclick="setRadio('fatigue-before','疲労あり','bf-good','bf-tired','bf-bad')">疲労あり</div>
+        </div>
+        <span class="field-label">特記事項</span>
+        <textarea class="field-input" id="before-notes" placeholder="特記事項があれば入力" style="resize:vertical;min-height:60px;"></textarea>
+      </div>
+      <button class="send-btn" id="btn-before" onclick="submitTenko('before')">🌅 乗務前点呼を送信</button>
+      <div class="msg" id="msg-before" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 業務記録 -->
+  <div class="section" id="section-work">
+    <div class="section-header">
+      <span class="section-title">📦 業務記録</span>
+      <span class="section-badge badge-locked" id="badge-work">待機中</span>
+    </div>
+    <div class="section-locked" id="body-work-locked">🌅 乗務前点呼を完了すると入力できます</div>
+    <div class="section-body" id="body-work" style="display:none">
+      <div id="jobs-container"></div>
+      <button class="add-job-btn" onclick="addJob()">＋ 案件を追加する</button>
+      <div class="msg" id="msg-work" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 乗務後点呼 -->
+  <div class="section" id="section-after">
+    <div class="section-header">
+      <span class="section-title">🌙 乗務後点呼</span>
+      <span class="section-badge badge-locked" id="badge-after">待機中</span>
+    </div>
+    <div class="section-locked" id="body-after-locked">🌅 乗務前点呼を完了すると入力できます</div>
+    <div class="section-body" id="body-after" style="display:none">
+      <span class="field-label">メーター値（km）</span>
+      <input class="field-input" type="text" inputmode="text" id="after-meter" placeholder="例：123512" onfocus="this.select()">
+      <div class="more-toggle" onclick="toggleMore('after')">▼ アルコール・健康状態を入力する</div>
+      <div class="more-detail" id="more-after">
+        <span class="field-label">アルコール検知値（mg/L）</span>
+        <div class="alc-row">
+          <input class="field-input" type="text" inputmode="text" id="after-alc" placeholder="0.00" oninput="checkAlc('after-alc','after-alc-badge')" onfocus="this.select()">
+          <span class="alc-badge ok" id="after-alc-badge">正常</span>
+        </div>
+        <span class="field-label">健康状態</span>
+        <div class="radio-group">
+          <div class="radio-btn active" id="ah-good" onclick="setRadio('health-after','良好','ah-good','ah-normal','ah-bad')">良好</div>
+          <div class="radio-btn" id="ah-normal" onclick="setRadio('health-after','普通','ah-good','ah-normal','ah-bad')">普通</div>
+          <div class="radio-btn" id="ah-bad" onclick="setRadio('health-after','不良','ah-good','ah-normal','ah-bad')">不良</div>
+        </div>
+        <span class="field-label">疲労・睡眠</span>
+        <div class="radio-group">
+          <div class="radio-btn active" id="af-good" onclick="setRadio('fatigue-after','問題なし','af-good','af-tired','af-bad')">問題なし</div>
+          <div class="radio-btn" id="af-tired" onclick="setRadio('fatigue-after','やや疲労','af-good','af-tired','af-bad')">やや疲労</div>
+          <div class="radio-btn" id="af-bad" onclick="setRadio('fatigue-after','疲労あり','af-good','af-tired','af-bad')">疲労あり</div>
+        </div>
+        <span class="field-label">特記事項</span>
+        <textarea class="field-input" id="after-notes" placeholder="特記事項があれば入力" style="resize:vertical;min-height:60px;"></textarea>
+      </div>
+      <button class="send-btn after-mode" id="btn-after" onclick="submitTenko('after')">🌙 乗務後点呼を送信</button>
+      <div class="msg" id="msg-after" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 過去の記録 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">📋 過去の記録</span>
       <button class="csv-btn" onclick="exportCSV()">CSV出力</button>
     </div>
     <div id="history-list"><div class="loading">読込中...</div></div>
   </div>
+
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.1</div>
+<!-- ヘルプモーダル -->
+<div class="overlay" id="help-overlay">
+  <div class="help-modal">
+    <div class="help-title">？ 使い方ガイド</div>
+    <div class="help-section">
+      <div class="help-section-title">🌅 点呼の送信</div>
+      <div class="help-text">メーター値を入力して「送信」ボタンをタップしてください。アルコール・健康状態は「▼」をタップして入力できます。同じ日に再送信すると上書きされます。</div>
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">📦 業務記録の追加</div>
+      <div class="help-text">「＋ 案件を追加する」をタップして案件を追加します。出発地・到着地は過去に入力した場所名から選択できます。入力後「💾 保存」をタップしてください。</div>
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">✏️ 業務記録の編集</div>
+      <div class="help-text">各入力欄をタップして直接編集し、「💾 保存」をタップしてください。</div>
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">🗑️ 業務記録の削除</div>
+      <div class="help-text">案件カード右上の「✕」をタップすると削除できます。</div>
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">📥 CSV出力</div>
+      <div class="help-text">「CSV出力」をタップすると点呼記録と業務記録をまとめてダウンロードできます。</div>
+    </div>
+    <button class="help-close" onclick="closeHelp()">閉じる</button>
+  </div>
+</div>
+
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -105,93 +315,206 @@ var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
 var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
-var currentDate=new Date();
+var todayStr='';
+var tenkoRecords={before:null,after:null};
 var todayJobs=[];
-var historyRecords=[];
+var historyTenko=[];
+var historyGyomu=[];
+var radioState={
+  'health-before':'良好','fatigue-before':'問題なし',
+  'health-after':'良好','fatigue-after':'問題なし'
+};
+// 過去の場所名サジェスト用
+var placeHistory=[];
 
-function getDateStr(d){
-  var jst=new Date(d.getTime()+9*60*60*1000);
+function getTodayJST(){
+  var jst=new Date(new Date().getTime()+9*60*60*1000);
   return jst.toISOString().split('T')[0];
 }
-function getDateLabel(d){
-  var jst=new Date(d.getTime()+9*60*60*1000);
-  var y=jst.getUTCFullYear();
-  var m=jst.getUTCMonth()+1;
-  var day=jst.getUTCDate();
-  var w=['日','月','火','水','木','金','土'][jst.getUTCDay()];
-  return y+'年'+m+'月'+day+'日（'+w+'）';
-}
+
 function getNowTimeJST(){
   var jst=new Date(new Date().getTime()+9*60*60*1000);
-  var h=String(jst.getUTCHours()).padStart(2,'0');
-  var m=String(jst.getUTCMinutes()).padStart(2,'0');
-  return h+':'+m;
+  return String(jst.getUTCHours()).padStart(2,'0')+':'+String(jst.getUTCMinutes()).padStart(2,'0');
 }
 
 async function init(){
   var {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='index.html';return;}
   userId=session.user.id;
-  updateDateLabel();
+  todayStr=getTodayJST();
   await loadToday();
   await loadHistory();
+  loadPlaceHistory();
 }
 
-function updateDateLabel(){
-  document.getElementById('date-label').textContent=getDateLabel(currentDate);
-}
-
-async function changeDate(d){
-  currentDate.setDate(currentDate.getDate()+d);
-  updateDateLabel();
-  await loadToday();
-}
-
+// ===== 点呼 =====
 async function loadToday(){
-  var dateStr=getDateStr(currentDate);
-  var {data}=await sb.from('gyomu_records').select('*').eq('user_id',userId).eq('date',dateStr).order('job_no');
-  todayJobs=data||[];
+  var {data}=await sb.from('tenko_records').select('*').eq('user_id',userId).eq('date',todayStr);
+  tenkoRecords.before=data&&data.find(r=>r.tenko_type==='乗務前')||null;
+  tenkoRecords.after=data&&data.find(r=>r.tenko_type==='乗務後')||null;
+
+  // 今日の業務記録
+  var {data:jobs}=await sb.from('gyomu_records').select('*').eq('user_id',userId).eq('date',todayStr).order('job_no');
+  todayJobs=jobs||[];
+
+  updateUI();
   renderJobs();
 }
 
-async function loadHistory(){
-  var {data}=await sb.from('gyomu_records').select('*').eq('user_id',userId).order('date',{ascending:false}).order('job_no');
-  historyRecords=data||[];
-  renderHistory();
+function updateUI(){
+  var beforeDone=!!tenkoRecords.before;
+  var afterDone=!!tenkoRecords.after;
+
+  // ステータスバー
+  updateStatus('dot-before','val-before',beforeDone,'乗務前完了','未完了');
+  updateStatus('dot-work','val-work',beforeDone,'入力中','待機中');
+  updateStatus('dot-after','val-after',afterDone,'乗務後完了','待機中');
+
+  // 乗務前セクション
+  if(beforeDone){
+    document.getElementById('badge-before').textContent='完了';
+    document.getElementById('badge-before').className='section-badge badge-done';
+    document.getElementById('body-before').innerHTML='<div class="msg ok">乗務前点呼完了 ✓ メーター: '+(tenkoRecords.before.meter_value||'-')+' km</div>';
+  }
+
+  // 業務記録セクション
+  if(beforeDone){
+    document.getElementById('badge-work').textContent='入力中';
+    document.getElementById('badge-work').className='section-badge badge-pending';
+    document.getElementById('body-work-locked').style.display='none';
+    document.getElementById('body-work').style.display='block';
+  }
+
+  // 乗務後セクション
+  if(beforeDone){
+    document.getElementById('badge-after').textContent=afterDone?'完了':'未完了';
+    document.getElementById('badge-after').className='section-badge '+(afterDone?'badge-done':'badge-pending');
+    document.getElementById('body-after-locked').style.display='none';
+    document.getElementById('body-after').style.display='block';
+  }
+
+  if(afterDone){
+    document.getElementById('body-after').innerHTML='<div class="msg ok">乗務後点呼完了 ✓ メーター: '+(tenkoRecords.after.meter_value||'-')+' km</div>';
+    document.getElementById('main-bg').className='main bg-after';
+  } else if(beforeDone){
+    document.getElementById('main-bg').className='main bg-before';
+  }
+}
+
+function updateStatus(dotId,valId,done,doneText,pendingText){
+  var dot=document.getElementById(dotId);
+  var val=document.getElementById(valId);
+  if(done){
+    dot.className='status-dot done';
+    val.className='status-value done';
+    val.textContent=doneText;
+  } else {
+    dot.className='status-dot pending';
+    val.className='status-value pending';
+    val.textContent=pendingText;
+  }
+}
+
+async function submitTenko(type){
+  var btn=document.getElementById('btn-'+type);
+  var msgEl=document.getElementById('msg-'+type);
+  btn.disabled=true;
+
+  var meterStr=document.getElementById(type+'-meter').value.trim();
+  var alcStr=document.getElementById(type+'-alc')?.value.trim()||'0';
+  var notes=document.getElementById(type+'-notes')?.value||'';
+
+  if(meterStr&&!/^[0-9.]+$/.test(meterStr)){
+    showMsg(msgEl,'メーター値は半角数字で入力してください','err');
+    btn.disabled=false;return;
+  }
+
+  var ttype=type==='before'?'乗務前':'乗務後';
+  var existing=tenkoRecords[type];
+  var record={
+    tenko_type:ttype,method:'セルフ',
+    alcohol_value:parseFloat(alcStr)||0,
+    meter_value:meterStr?parseInt(meterStr):null,
+    health_status:radioState['health-'+type],
+    fatigue_status:radioState['fatigue-'+type],
+    notes:notes,
+  };
+
+  var error;
+  if(existing){
+    var r=await sb.from('tenko_records').update(record).eq('id',existing.id);
+    error=r.error;
+  } else {
+    record.user_id=userId;record.date=todayStr;
+    var r2=await sb.from('tenko_records').insert(record);
+    error=r2.error;
+  }
+
+  if(error){showMsg(msgEl,'エラー: '+error.message,'err');btn.disabled=false;return;}
+  await loadToday();
+  await loadHistory();
+  btn.disabled=false;
+}
+
+// ===== 業務記録 =====
+function loadPlaceHistory(){
+  var saved=localStorage.getItem('doramemo_places');
+  placeHistory=saved?JSON.parse(saved):[];
+}
+
+function savePlaceHistory(place){
+  if(!place) return;
+  if(!placeHistory.includes(place)){
+    placeHistory.unshift(place);
+    if(placeHistory.length>20) placeHistory=placeHistory.slice(0,20);
+    localStorage.setItem('doramemo_places',JSON.stringify(placeHistory));
+  }
+}
+
+function showSuggest(inputId,containerId){
+  var input=document.getElementById(inputId);
+  var val=input.value;
+  var filtered=placeHistory.filter(p=>p.includes(val)&&p!==val);
+  var container=document.getElementById(containerId);
+  if(filtered.length===0){container.innerHTML='';return;}
+  container.innerHTML=filtered.map(p=>'<div class="suggest-item" onmousedown="selectSuggest(\''+inputId+'\',\''+containerId+'\',\''+p+'\')">'+p+'</div>').join('');
+}
+
+function selectSuggest(inputId,containerId,val){
+  document.getElementById(inputId).value=val;
+  document.getElementById(containerId).innerHTML='';
 }
 
 function renderJobs(){
   var container=document.getElementById('jobs-container');
+  if(!container) return;
   if(todayJobs.length===0){container.innerHTML='';return;}
-  container.innerHTML=todayJobs.map((job,i)=>jobCardHTML(job,i+1)).join('');
+  container.innerHTML=todayJobs.map(function(job,i){return jobCardHTML(job,i+1);}).join('');
   // イベント設定
-  todayJobs.forEach(job=>{
-    // フォーカス時に全選択
-    ['sp','sm','ep','em','memo'].forEach(prefix=>{
+  todayJobs.forEach(function(job){
+    ['sm','em'].forEach(function(prefix){
+      var el=document.getElementById(prefix+'-'+job.id);
+      if(el){
+        el.addEventListener('focus',function(){this.select();});
+        var timer;
+        el.addEventListener('touchstart',function(){
+          var self=this;
+          timer=setTimeout(function(){
+            self.value=getNowTimeJST();
+          },600);
+        });
+        el.addEventListener('touchend',function(){clearTimeout(timer);});
+        el.addEventListener('touchmove',function(){clearTimeout(timer);});
+      }
+    });
+    ['sp','ep','memo'].forEach(function(prefix){
       var el=document.getElementById(prefix+'-'+job.id);
       if(el) el.addEventListener('focus',function(){this.select();});
     });
-    // 時刻欄：長押しで現在時刻セット
-    ['st','et'].forEach(prefix=>{
-      var el=document.getElementById(prefix+'-'+job.id);
-      if(!el) return;
-      el.addEventListener('focus',function(){this.select();});
-      var timer;
-      var elRef=el;
-      el.addEventListener('touchstart',function(){
-        var self=this;
-        timer=setTimeout(function(){
-          self.value=getNowTimeJST();
-          showMsg('現在時刻をセットしました','ok');
-        },600);
-      });
-      el.addEventListener('touchend',function(){clearTimeout(timer);});
-      el.addEventListener('touchmove',function(){clearTimeout(timer);});
-    });
     // 走行距離リアルタイム更新
-    ['sm','em'].forEach(prefix=>{
-      var el=document.getElementById(prefix+'-'+job.id);
-      if(el) el.addEventListener('input',function(){updateDistance(job.id);});
+    ['start-meter','end-meter'].forEach(function(prefix){
+      var el=document.getElementById(prefix.split('-')[0][0]+'m-'+job.id);
+      if(el) el.addEventListener('input',function(){updateDist(job.id);});
     });
   });
 }
@@ -205,59 +528,59 @@ function jobCardHTML(job,no){
   var dist=job.start_meter&&job.end_meter&&job.end_meter>job.start_meter?(job.end_meter-job.start_meter)+' km':'-- km';
   var ndChecked=job.next_day?'checked':'';
   var html='<div class="job-card" id="job-'+job.id+'">';
-  html+='<div class="job-header">';
-  html+='<div class="job-header-left">';
+  html+='<div class="job-card-header">';
+  html+='<div style="display:flex;align-items:center;gap:.5rem">';
   html+='<span class="job-no">案件 '+no+'</span>';
   html+='<input class="job-name-input" type="text" id="jn-'+job.id+'" value="'+jobName+'" placeholder="案件名（任意）" onfocus="this.select()">';
   html+=incomplete;
   html+='</div>';
   html+='<button class="job-del" onclick="deleteJob(\''+job.id+'\')">✕</button>';
   html+='</div>';
-  html+='<div class="job-body">';
   html+='<div class="point-row">';
   html+='<div class="point-dot start"></div>';
-  html+='<input class="field-place" type="text" id="sp-'+job.id+'" value="'+startPlace+'" placeholder="出発地点">';
+  html+='<div class="suggest-wrap">';
+  html+='<input class="field-place" type="text" id="sp-'+job.id+'" value="'+startPlace+'" placeholder="出発地点" oninput="showSuggest(\'sp-'+job.id+'\',\'sug-sp-'+job.id+'\')" onfocus="this.select();showSuggest(\'sp-'+job.id+'\',\'sug-sp-'+job.id+'\')" onblur="setTimeout(()=>{var el=document.getElementById(\'sug-sp-'+job.id+'\');if(el)el.innerHTML=\'\';},200)">';
+  html+='<div class="suggest-list" id="sug-sp-'+job.id+'"></div>';
+  html+='</div>';
   html+='<input class="field-time" type="time" id="st-'+job.id+'" value="'+(job.start_time||'')+'">';
-  html+='<input class="field-meter" type="text" inputmode="text" id="sm-'+job.id+'" value="'+(job.start_meter||'')+'" placeholder="km">';
+  html+='<input class="field-meter" type="text" inputmode="text" id="sm-'+job.id+'" value="'+(job.start_meter||'')+'" placeholder="km" onfocus="this.select()">';
   html+='</div>';
   html+='<div class="point-row">';
   html+='<div class="point-dot end"></div>';
-  html+='<input class="field-place" type="text" id="ep-'+job.id+'" value="'+endPlace+'" placeholder="到着地点">';
+  html+='<div class="suggest-wrap">';
+  html+='<input class="field-place" type="text" id="ep-'+job.id+'" value="'+endPlace+'" placeholder="到着地点" oninput="showSuggest(\'ep-'+job.id+'\',\'sug-ep-'+job.id+'\')" onfocus="this.select();showSuggest(\'ep-'+job.id+'\',\'sug-ep-'+job.id+'\')" onblur="setTimeout(()=>{var el=document.getElementById(\'sug-ep-'+job.id+'\');if(el)el.innerHTML=\'\';},200)">';
+  html+='<div class="suggest-list" id="sug-ep-'+job.id+'"></div>';
+  html+='</div>';
   html+='<input class="field-time" type="time" id="et-'+job.id+'" value="'+(job.end_time||'')+'">';
-  html+='<input class="field-meter" type="text" inputmode="text" id="em-'+job.id+'" value="'+(job.end_meter||'')+'" placeholder="km">';
+  html+='<input class="field-meter" type="text" inputmode="text" id="em-'+job.id+'" value="'+(job.end_meter||'')+'" placeholder="km" onfocus="this.select()">';
   html+='</div>';
   html+='<input class="field-memo" type="text" id="memo-'+job.id+'" value="'+memoVal+'" placeholder="メモ（任意）" onfocus="this.select()">';
   html+='<div class="job-footer">';
   html+='<label class="nextday-check"><input type="checkbox" id="nd-'+job.id+'" '+ndChecked+'> 翌日着</label>';
   html+='<span class="distance-text" id="dist-'+job.id+'">'+dist+'</span>';
   html+='<button class="save-job-btn" onclick="saveJob(\''+job.id+'\')">💾 保存</button>';
-  html+='</div></div></div>';
+  html+='</div></div>';
   return html;
 }
 
-function updateDistance(id){
-  var sm=parseInt(document.getElementById('sm-'+id).value)||0;
-  var em=parseInt(document.getElementById('em-'+id).value)||0;
+function updateDist(id){
+  var sm=parseInt(document.getElementById('sm-'+id)?.value)||0;
+  var em=parseInt(document.getElementById('em-'+id)?.value)||0;
   var el=document.getElementById('dist-'+id);
   if(el) el.textContent=sm&&em&&em>sm?(em-sm)+' km':'-- km';
 }
 
 async function addJob(){
-  var dateStr=getDateStr(currentDate);
-  var nextNo=(todayJobs.length>0?Math.max(...todayJobs.map(j=>j.job_no)):0)+1;
-  var {data,error}=await sb.from('gyomu_records').insert({
-    user_id:userId,date:dateStr,job_no:nextNo
-  }).select().single();
-  if(error){showMsg('エラー: '+error.message,'err');return;}
+  var nextNo=(todayJobs.length>0?Math.max.apply(null,todayJobs.map(function(j){return j.job_no;}))):0)+1;
+  var {data,error}=await sb.from('gyomu_records').insert({user_id:userId,date:todayStr,job_no:nextNo}).select().single();
+  if(error){showMsg(document.getElementById('msg-work'),'エラー: '+error.message,'err');return;}
   todayJobs.push(data);
   renderJobs();
-  showMsg('案件'+nextNo+'を追加しました','ok');
 }
 
 async function saveJob(id){
-  var job=todayJobs.find(j=>j.id===id);
+  var job=todayJobs.find(function(j){return j.id===id;});
   if(!job) return;
-
   var sp=document.getElementById('sp-'+id).value.trim();
   var st=document.getElementById('st-'+id).value.trim();
   var smStr=document.getElementById('sm-'+id).value.trim();
@@ -268,96 +591,118 @@ async function saveJob(id){
   var jn=document.getElementById('jn-'+id).value.trim();
   var memo=document.getElementById('memo-'+id).value.trim();
 
-  if(smStr&&!/^[0-9]+$/.test(smStr)){showMsg('出発メーターは半角数字で入力してください','err');return;}
-  if(emStr&&!/^[0-9]+$/.test(emStr)){showMsg('到着メーターは半角数字で入力してください','err');return;}
+  if(smStr&&!/^[0-9]+$/.test(smStr)){showMsg(document.getElementById('msg-work'),'出発メーターは半角数字で入力してください','err');return;}
+  if(emStr&&!/^[0-9]+$/.test(emStr)){showMsg(document.getElementById('msg-work'),'到着メーターは半角数字で入力してください','err');return;}
 
-  var updates={
-    job_name:jn||null,
-    memo:memo||null,
-    start_place:sp||null,
-    start_time:st||null,
-    start_meter:smStr?parseInt(smStr):null,
-    end_place:ep||null,
-    end_time:et||null,
-    end_meter:emStr?parseInt(emStr):null,
-    next_day:nd,
-  };
+  // 場所名をサジェスト履歴に保存
+  if(sp) savePlaceHistory(sp);
+  if(ep) savePlaceHistory(ep);
 
+  var updates={job_name:jn||null,start_place:sp||null,start_time:st||null,start_meter:smStr?parseInt(smStr):null,end_place:ep||null,end_time:et||null,end_meter:emStr?parseInt(emStr):null,next_day:nd,memo:memo||null};
   var {error}=await sb.from('gyomu_records').update(updates).eq('id',id);
-  if(error){showMsg('エラー: '+error.message,'err');return;}
-
+  if(error){showMsg(document.getElementById('msg-work'),'エラー: '+error.message,'err');return;}
   Object.assign(job,updates);
   renderJobs();
-  showMsg('保存しました！','ok');
+  showMsg(document.getElementById('msg-work'),'保存しました！','ok');
   loadHistory();
 }
 
 async function deleteJob(id){
   if(!confirm('この案件を削除しますか？')) return;
-  var {error}=await sb.from('gyomu_records').delete().eq('id',id);
-  if(error){showMsg('エラー: '+error.message,'err');return;}
-  todayJobs=todayJobs.filter(j=>j.id!==id);
-  todayJobs.forEach((j,i)=>{j.job_no=i+1;});
+  await sb.from('gyomu_records').delete().eq('id',id);
+  todayJobs=todayJobs.filter(function(j){return j.id!==id;});
+  todayJobs.forEach(function(j,i){j.job_no=i+1;});
   renderJobs();
   loadHistory();
 }
 
+// ===== 履歴 =====
+async function loadHistory(){
+  var {data:tenko}=await sb.from('tenko_records').select('*').eq('user_id',userId).order('date',{ascending:false}).limit(60);
+  var {data:gyomu}=await sb.from('gyomu_records').select('*').eq('user_id',userId).order('date',{ascending:false}).order('job_no');
+  historyTenko=tenko||[];
+  historyGyomu=gyomu||[];
+  renderHistory();
+}
+
 function renderHistory(){
   var el=document.getElementById('history-list');
-  if(historyRecords.length===0){el.innerHTML='<div class="empty">記録がありません</div>';return;}
-  var grouped={};
-  historyRecords.forEach(r=>{
-    if(!grouped[r.date]) grouped[r.date]=[];
-    grouped[r.date].push(r);
-  });
-  el.innerHTML=Object.keys(grouped).sort().reverse().slice(0,30).map(date=>{
-    var jobs=grouped[date];
-    var jobHTML=jobs.map(j=>{
-      var dist=j.start_meter&&j.end_meter&&j.end_meter>j.start_meter?'（'+(j.end_meter-j.start_meter)+'km）':'';
-      var nd=j.next_day?'翌日':'';
-      var name=j.job_name?'【'+j.job_name+'】':'案件'+(j.job_no||'?')+':';
-      var incomplete=!j.end_place&&!j.end_time?'<span style="color:#e24b4a"> 到着未入力</span>':'';
-      return '<div class="history-job">'+name+' '+(j.start_place||'-')+' '+(j.start_time||'')+'→'+(j.end_place||'未入力')+' '+nd+(j.end_time||'')+dist+(j.memo?' メモ:'+j.memo:'')+incomplete+'</div>';
+  // 日付でグループ化
+  var dates={};
+  historyTenko.forEach(function(r){if(!dates[r.date])dates[r.date]={tenko:[],gyomu:[]};dates[r.date].tenko.push(r);});
+  historyGyomu.forEach(function(r){if(!dates[r.date])dates[r.date]={tenko:[],gyomu:[]};dates[r.date].gyomu.push(r);});
+  var sortedDates=Object.keys(dates).sort().reverse().slice(0,30);
+  if(sortedDates.length===0){el.innerHTML='<div class="empty">記録がありません</div>';return;}
+  el.innerHTML=sortedDates.map(function(date){
+    var d=dates[date];
+    var tenkoHtml=d.tenko.map(function(r){
+      return '<div class="history-job">'+r.tenko_type+' アルコール:'+(r.alcohol_value||0)+' メーター:'+(r.meter_value||'-')+'km</div>';
     }).join('');
-    return '<div class="history-day"><div class="history-date">'+date+' — '+jobs.length+'件</div>'+jobHTML+'</div>';
+    var gyomuHtml=d.gyomu.map(function(j){
+      var dist=j.start_meter&&j.end_meter&&j.end_meter>j.start_meter?(j.end_meter-j.start_meter)+'km':'';
+      return '<div class="history-job">案件'+(j.job_no||'?')+(j.job_name?' ['+j.job_name+']':'')+': '+(j.start_place||'-')+' → '+(j.end_place||'未入力')+(dist?' ('+dist+')':'')+'</div>';
+    }).join('');
+    return '<div class="history-day"><div class="history-date">'+date+'</div>'+tenkoHtml+gyomuHtml+'</div>';
   }).join('');
 }
 
+// ===== CSV出力（点呼＋業務まとめて） =====
 function exportCSV(){
-  if(historyRecords.length===0){alert('データがありません');return;}
-  var headers=['日付','案件No','案件名','出発地点','出発時刻','出発メーター','到着地点','到着時刻','翌日','到着メーター','走行距離','メモ'];
-  var rows=historyRecords.map(r=>{
-    var dist=r.start_meter&&r.end_meter?r.end_meter-r.start_meter:'';
-    return[r.date,r.job_no,r.job_name||'',r.start_place||'',r.start_time||'',r.start_meter||'',r.end_place||'',r.end_time||'',r.next_day?'翌日':'',r.end_meter||'',dist,r.memo||'']
-      .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
+  if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
+  var rows=['\uFEFF日付,種別,内容'];
+  historyTenko.forEach(function(r){
+    rows.push('"'+r.date+'","点呼 '+r.tenko_type+'","アルコール:'+(r.alcohol_value||0)+' メーター:'+(r.meter_value||'')+' 健康:'+r.health_status+' 疲労:'+r.fatigue_status+(r.notes?' 特記:'+r.notes:'')+'"');
   });
-  // ファイル名に月を追加
-  var now=new Date(new Date().getTime()+9*60*60*1000);
-  var ym=now.getUTCFullYear()+'年'+(now.getUTCMonth()+1)+'月';
-  var csv='\uFEFF'+headers.join(',')+'\n'+rows.join('\n');
-  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  historyGyomu.forEach(function(j){
+    var dist=j.start_meter&&j.end_meter?j.end_meter-j.start_meter:'';
+    rows.push('"'+j.date+'","業務 案件'+(j.job_no||'?')+(j.job_name?' ['+j.job_name+']':'')+'","'+(j.start_place||'')+' '+(j.start_time||'')+' → '+(j.end_place||'')+' '+(j.end_time||'')+(j.next_day?' 翌日':'')+(dist?' '+dist+'km':'')+(j.memo?' '+j.memo:'')+'"');
+  });
+  var now=new Date();
+  var dateStr=now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2);
+  var blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url;a.download='業務記録_'+ym+'.csv';a.click();
+  a.href=url;a.download='業務管理_'+dateStr+'.csv';a.click();
   URL.revokeObjectURL(url);
 }
 
-function showMsg(text,type){
-  var el=document.getElementById('msg');
-  el.textContent=text;el.className='msg '+type;el.style.display='block';
-  clearTimeout(el._t);
-  el._t=setTimeout(()=>{el.style.display='none';},2500);
+// ===== ユーティリティ =====
+function toggleMore(type){
+  var el=document.getElementById('more-'+type);
+  var toggle=el.previousElementSibling;
+  var open=el.classList.toggle('open');
+  toggle.textContent=open?'▲ 詳細を閉じる':'▼ アルコール・健康状態を入力する';
 }
+
+function checkAlc(inputId,badgeId){
+  var v=parseFloat(document.getElementById(inputId).value)||0;
+  var badge=document.getElementById(badgeId);
+  if(v>=0.15){badge.className='alc-badge ng';badge.textContent='要確認';}
+  else{badge.className='alc-badge ok';badge.textContent='正常';}
+}
+
+function setRadio(key,val,id1,id2,id3){
+  radioState[key]=val;
+  [id1,id2,id3].forEach(function(id){document.getElementById(id).className='radio-btn';});
+  var map={};map[id1]=map[id2]=map[id3]='';
+  var activeId=val==='不良'||val==='疲労あり'?[id1,id2,id3].find(function(id){return document.getElementById(id).textContent===val;}):null;
+  var normalId=[id1,id2,id3].find(function(id){return document.getElementById(id).textContent===val;});
+  if(normalId) document.getElementById(normalId).className=val==='不良'||val==='疲労あり'?'radio-btn ng-active':'radio-btn active';
+}
+
+function showMsg(el,text,type){
+  el.textContent=text;el.className='msg '+type;el.style.display='block';
+  clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none';},2500);
+}
+
+function openHelp(){document.getElementById('help-overlay').classList.add('show');}
+function closeHelp(){document.getElementById('help-overlay').classList.remove('show');}
 
 init();
 </script>
 <script>
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/doramemo/sw.js').then(reg=>{
-    console.log('SW registered');
-  }).catch(err=>{
-    console.log('SW error:', err);
-  });
+  navigator.serviceWorker.register('/doramemo/sw.js');
 }
 </script>
 </body>
