@@ -571,7 +571,7 @@ function updateDist(id){
 }
 
 async function addJob(){
-  var nextNo=(todayJobs.length>0?Math.max.apply(null,todayJobs.map(function(j){return j.job_no;}))):0)+1;
+  var nextNo=(todayJobs.length>0?Math.max.apply(null,todayJobs.map(function(j){return j.job_no;})):0)+1;
   var {data,error}=await sb.from('gyomu_records').insert({user_id:userId,date:todayStr,job_no:nextNo}).select().single();
   if(error){showMsg(document.getElementById('msg-work'),'エラー: '+error.message,'err');return;}
   todayJobs.push(data);
