@@ -334,7 +334,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.9</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.1.0</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -594,9 +594,17 @@ async function submitTenko(type){
   }
 
   if(error){showMsg(msgEl,'エラー: '+error.message,'err');btn.disabled=false;return;}
-  await loadToday(); // UI優先で更新
+  // DBを待たずにtenkoRecordsを即時更新してUIに反映
+  if(existing){
+    Object.assign(tenkoRecords[type],record);
+  } else {
+    tenkoRecords[type]=Object.assign({id:'temp'},record,{user_id:userId,date:todayStr});
+  }
+  updateUI();
   btn.disabled=false;
-  loadHistory(); // 履歴は非同期で後から更新
+  // バックグラウンドでDB最新データを取得
+  loadToday();
+  loadHistory();
 }
 
 // ===== 業務記録 =====
@@ -809,7 +817,7 @@ function renderHistory(){
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
   loadBasicInfo();
-  var appVer='ドラメモ v2.0.9';
+  var appVer='ドラメモ v2.1.0';
   var rows=['\uFEFF業務管理レポート'];
   rows.push('乗務員名,'+basicInfo.name);
   rows.push('車両番号,'+basicInfo.car);
