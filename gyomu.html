@@ -334,7 +334,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.6</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.7</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -628,7 +628,7 @@ function showJobNameSuggest(inputId,containerId){
   var filtered=jobNameHistory.filter(p=>p.includes(val)&&p!==val);
   var container=document.getElementById(containerId);
   if(filtered.length===0){container.innerHTML='';return;}
-  container.innerHTML=filtered.map(p=>'<div class="suggest-item" onmousedown="selectSuggest(''+inputId+'',''+containerId+'',''+p+'')">'+p+'</div>').join('');
+  container.innerHTML=filtered.map(function(p){return '<div class="suggest-item" onmousedown="selectSuggest(\'' +inputId+ '\',\'' +containerId+ '\',\'' +p+ '\')">'+p+'</div>';}).join('');
 }
 
 function showSuggest(inputId,containerId){
@@ -804,7 +804,7 @@ function renderHistory(){
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
   loadBasicInfo();
-  var appVer='ドラメモ v2.0.6';
+  var appVer='ドラメモ v2.0.7';
   var rows=['\uFEFF業務管理レポート'];
   rows.push('乗務員名,'+basicInfo.name);
   rows.push('車両番号,'+basicInfo.car);
