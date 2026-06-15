@@ -122,6 +122,17 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 .empty{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
 .loading{padding:2rem;text-align:center;color:#7a8a9e;font-size:.85rem}
 
+/* 基本情報モーダル */
+.info-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:center;justify-content:center}
+.info-overlay.show{display:flex}
+.info-modal{background:#fff;border-radius:16px;padding:1.5rem;width:90%;max-width:400px}
+.info-modal-title{font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#0f1c35}
+.info-modal-sub{font-size:.78rem;color:#7a8a9e;margin-bottom:1.25rem;line-height:1.6}
+.info-label{font-size:.85rem;color:#5a6a82;display:block;margin-bottom:4px;margin-top:.75rem}
+.info-input{width:100%;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.95rem;color:#0f1c35;outline:none}
+.info-input:focus{border-color:#f59e0b}
+.info-save{width:100%;background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:1.25rem}
+
 /* ヘルプモーダル */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:center;justify-content:center}
 .overlay.show{display:flex}
@@ -152,6 +163,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 <div class="header">
   <span class="header-title">🚚 業務管理</span>
   <div class="header-right">
+    <button class="help-btn" onclick="openBasicInfo(false)" style="width:auto;padding:0 8px;border-radius:6px;font-size:.72rem;">基本情報</button>
     <button class="help-btn" onclick="openHelp()">？</button>
     <button class="back-btn" onclick="window.location.href='home.html'">← ホーム</button>
   </div>
@@ -279,6 +291,19 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 
 </div>
 
+<!-- 基本情報モーダル -->
+<div class="info-overlay" id="info-overlay">
+  <div class="info-modal">
+    <div class="info-modal-title">🚚 基本情報の設定</div>
+    <div class="info-modal-sub" id="info-modal-sub">初回設定です。乗務員名と車両番号を入力してください。</div>
+    <label class="info-label">乗務員名</label>
+    <input class="info-input" type="text" id="info-name" placeholder="例：田村 守" onfocus="this.select()">
+    <label class="info-label">車両番号</label>
+    <input class="info-input" type="text" id="info-car" placeholder="例：相模 100 あ 1234" onfocus="this.select()">
+    <button class="info-save" onclick="saveBasicInfo()">保存する</button>
+  </div>
+</div>
+
 <!-- ヘルプモーダル -->
 <div class="overlay" id="help-overlay">
   <div class="help-modal">
@@ -307,7 +332,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.1</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -327,6 +352,36 @@ var radioState={
 // 過去の場所名サジェスト用
 var placeHistory=[];
 
+// ===== 基本情報 =====
+var basicInfo={name:'',car:''};
+
+function loadBasicInfo(){
+  var saved=localStorage.getItem('doramemo_basic');
+  if(saved) basicInfo=JSON.parse(saved);
+  return basicInfo;
+}
+
+function saveBasicInfo(){
+  var name=document.getElementById('info-name').value.trim();
+  var car=document.getElementById('info-car').value.trim();
+  if(!name||!car){
+    alert('乗務員名と車両番号を入力してください');return;
+  }
+  basicInfo={name:name,car:car};
+  localStorage.setItem('doramemo_basic',JSON.stringify(basicInfo));
+  document.getElementById('info-overlay').classList.remove('show');
+}
+
+function openBasicInfo(isFirst){
+  loadBasicInfo();
+  document.getElementById('info-name').value=basicInfo.name||'';
+  document.getElementById('info-car').value=basicInfo.car||'';
+  document.getElementById('info-modal-sub').textContent=isFirst?
+    '初回設定です。乗務員名と車両番号を入力してください。':
+    '乗務員名と車両番号を変更できます。';
+  document.getElementById('info-overlay').classList.add('show');
+}
+
 function getTodayJST(){
   var jst=new Date(new Date().getTime()+9*60*60*1000);
   return jst.toISOString().split('T')[0];
@@ -342,6 +397,11 @@ async function init(){
   if(!session){window.location.href='index.html';return;}
   userId=session.user.id;
   todayStr=getTodayJST();
+  // 基本情報チェック（初回は設定画面を表示）
+  loadBasicInfo();
+  if(!basicInfo.name||!basicInfo.car){
+    openBasicInfo(true);
+  }
   await loadToday();
   await loadHistory();
   loadPlaceHistory();
@@ -649,7 +709,15 @@ function renderHistory(){
 // ===== CSV出力（点呼＋業務まとめて） =====
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
-  var rows=['\uFEFF日付,種別,内容'];
+  loadBasicInfo();
+  var appVer='ドラメモ v2.0.1';
+  var rows=['\uFEFF業務管理レポート'];
+  rows.push('乗務員名,'+basicInfo.name);
+  rows.push('車両番号,'+basicInfo.car);
+  rows.push('出力日時,'+new Date().toLocaleString('ja-JP'));
+  rows.push('バージョン,'+appVer);
+  rows.push('');
+  rows.push('日付,種別,内容');
   historyTenko.forEach(function(r){
     rows.push('"'+r.date+'","点呼 '+r.tenko_type+'","アルコール:'+(r.alcohol_value||0)+' メーター:'+(r.meter_value||'')+' 健康:'+r.health_status+' 疲労:'+r.fatigue_status+(r.notes?' 特記:'+r.notes:'')+'"');
   });
