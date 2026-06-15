@@ -334,12 +334,12 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.8</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.9</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var SURL='DORAMEMO_URL';
+var SKEY='DORAMEMO_KEY';
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
 var todayStr='';
@@ -594,9 +594,9 @@ async function submitTenko(type){
   }
 
   if(error){showMsg(msgEl,'エラー: '+error.message,'err');btn.disabled=false;return;}
-  await loadToday();
-  await loadHistory();
+  await loadToday(); // UI優先で更新
   btn.disabled=false;
+  loadHistory(); // 履歴は非同期で後から更新
 }
 
 // ===== 業務記録 =====
@@ -809,7 +809,7 @@ function renderHistory(){
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
   loadBasicInfo();
-  var appVer='ドラメモ v2.0.8';
+  var appVer='ドラメモ v2.0.9';
   var rows=['\uFEFF業務管理レポート'];
   rows.push('乗務員名,'+basicInfo.name);
   rows.push('車両番号,'+basicInfo.car);
