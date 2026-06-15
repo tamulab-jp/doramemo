@@ -334,12 +334,12 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.5</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.6</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var SURL='DORAMEMO_URL';
+var SKEY='DORAMEMO_KEY';
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
 var todayStr='';
@@ -595,9 +595,13 @@ async function submitTenko(type){
 }
 
 // ===== 業務記録 =====
+var jobNameHistory=[];
+
 function loadPlaceHistory(){
   var saved=localStorage.getItem('doramemo_places');
   placeHistory=saved?JSON.parse(saved):[];
+  var saved2=localStorage.getItem('doramemo_jobnames');
+  jobNameHistory=saved2?JSON.parse(saved2):[];
 }
 
 function savePlaceHistory(place){
@@ -607,6 +611,24 @@ function savePlaceHistory(place){
     if(placeHistory.length>20) placeHistory=placeHistory.slice(0,20);
     localStorage.setItem('doramemo_places',JSON.stringify(placeHistory));
   }
+}
+
+function saveJobNameHistory(name){
+  if(!name) return;
+  if(!jobNameHistory.includes(name)){
+    jobNameHistory.unshift(name);
+    if(jobNameHistory.length>20) jobNameHistory=jobNameHistory.slice(0,20);
+    localStorage.setItem('doramemo_jobnames',JSON.stringify(jobNameHistory));
+  }
+}
+
+function showJobNameSuggest(inputId,containerId){
+  var input=document.getElementById(inputId);
+  var val=input.value;
+  var filtered=jobNameHistory.filter(p=>p.includes(val)&&p!==val);
+  var container=document.getElementById(containerId);
+  if(filtered.length===0){container.innerHTML='';return;}
+  container.innerHTML=filtered.map(p=>'<div class="suggest-item" onmousedown="selectSuggest(''+inputId+'',''+containerId+'',''+p+'')">'+p+'</div>').join('');
 }
 
 function showSuggest(inputId,containerId){
@@ -669,7 +691,10 @@ function jobCardHTML(job,no){
   html+='<div class="job-card-header">';
   html+='<div style="display:flex;align-items:center;gap:.5rem">';
   html+='<span class="job-no">案件 '+no+'</span>';
-  html+='<input class="job-name-input" type="text" id="jn-'+job.id+'" value="'+jobName+'" placeholder="案件名（任意）" onfocus="this.select()">';
+  html+='<div class="suggest-wrap" style="width:110px;position:relative;">';
+  html+='<input class="job-name-input" type="text" id="jn-'+job.id+'" value="'+jobName+'" placeholder="案件名（任意）" style="width:100%" oninput="showJobNameSuggest(\'jn-'+job.id+'\',\'sug-jn-'+job.id+'\')" onfocus="this.select();showJobNameSuggest(\'jn-'+job.id+'\',\'sug-jn-'+job.id+'\')" onblur="setTimeout(()=>{var el=document.getElementById(\'sug-jn-'+job.id+'\');if(el)el.innerHTML=\'\';},200)">';
+  html+='<div class="suggest-list" id="sug-jn-'+job.id+'" style="width:160px"></div>';
+  html+='</div>';
   html+=incomplete;
   html+='</div>';
   html+='<button class="job-del" onclick="deleteJob(\''+job.id+'\')">✕</button>';
@@ -722,9 +747,10 @@ async function saveJob(id){
   if(smStr&&!/^[0-9]+$/.test(smStr)){showMsg(document.getElementById('msg-work'),'出発メーターは半角数字で入力してください','err');return;}
   if(emStr&&!/^[0-9]+$/.test(emStr)){showMsg(document.getElementById('msg-work'),'到着メーターは半角数字で入力してください','err');return;}
 
-  // 場所名をサジェスト履歴に保存
+  // 場所名・案件名をサジェスト履歴に保存
   if(sp) savePlaceHistory(sp);
   if(ep) savePlaceHistory(ep);
+  if(jn) saveJobNameHistory(jn);
 
   var updates={job_name:jn||null,start_place:sp||null,start_time:st||null,start_meter:smStr?parseInt(smStr):null,end_place:ep||null,end_time:et||null,end_meter:emStr?parseInt(emStr):null,next_day:nd,memo:memo||null};
   var {error}=await sb.from('gyomu_records').update(updates).eq('id',id);
@@ -778,7 +804,7 @@ function renderHistory(){
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
   loadBasicInfo();
-  var appVer='ドラメモ v2.0.5';
+  var appVer='ドラメモ v2.0.6';
   var rows=['\uFEFF業務管理レポート'];
   rows.push('乗務員名,'+basicInfo.name);
   rows.push('車両番号,'+basicInfo.car);
