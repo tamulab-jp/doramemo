@@ -334,7 +334,7 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
   </div>
 </div>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.7</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v2.0.8</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -416,8 +416,11 @@ async function init(){
 // ===== 点呼 =====
 async function loadToday(){
   var {data}=await sb.from('tenko_records').select('*').eq('user_id',userId).eq('date',todayStr);
-  tenkoRecords.before=data&&data.find(r=>r.tenko_type==='乗務前')||null;
-  tenkoRecords.after=data&&data.find(r=>r.tenko_type==='乗務後')||null;
+  // DBから最新データを取得してtenkoRecordsを更新
+  tenkoRecords={
+    before:data&&data.find(r=>r.tenko_type==='乗務前')||null,
+    after:data&&data.find(r=>r.tenko_type==='乗務後')||null
+  };
 
   // 今日の業務記録
   var {data:jobs}=await sb.from('gyomu_records').select('*').eq('user_id',userId).eq('date',todayStr).order('job_no');
@@ -440,7 +443,8 @@ function updateUI(){
   if(beforeDone){
     document.getElementById('badge-before').textContent='完了';
     document.getElementById('badge-before').className='section-badge badge-done';
-    document.getElementById('body-before').innerHTML='<div class="msg ok" style="margin-bottom:.75rem">乗務前点呼完了 ✓ メーター: '+(tenkoRecords.before.meter_value||'-')+' km</div><button class="send-btn" style="background:#7a8a9e;font-size:.85rem;padding:10px;" onclick="resetTenko(\'before\')">↩ 送信し直す</button>';
+    var bMeter=tenkoRecords.before.meter_value||'-';
+    document.getElementById('body-before').innerHTML='<div class="msg ok" style="margin-bottom:.75rem">乗務前点呼完了 ✓ メーター: '+bMeter+' km</div><button class="send-btn" style="background:#7a8a9e;font-size:.85rem;padding:10px;" onclick="resetTenko(\'before\')">↩ 送信し直す</button>';
   }
 
   // 業務記録セクション
@@ -460,7 +464,8 @@ function updateUI(){
   }
 
   if(afterDone){
-    document.getElementById('body-after').innerHTML='<div class="msg ok" style="margin-bottom:.75rem">乗務後点呼完了 ✓ メーター: '+(tenkoRecords.after.meter_value||'-')+' km</div><button class="send-btn after-mode" style="font-size:.85rem;padding:10px;" onclick="resetTenko(\'after\')">↩ 送信し直す</button>';
+    var aMeter=tenkoRecords.after.meter_value||'-';
+    document.getElementById('body-after').innerHTML='<div class="msg ok" style="margin-bottom:.75rem">乗務後点呼完了 ✓ メーター: '+aMeter+' km</div><button class="send-btn after-mode" style="font-size:.85rem;padding:10px;" onclick="resetTenko(\'after\')">↩ 送信し直す</button>';
     document.getElementById('main-bg').className='main bg-after';
   } else if(beforeDone){
     document.getElementById('main-bg').className='main bg-before';
@@ -804,7 +809,7 @@ function renderHistory(){
 function exportCSV(){
   if(historyTenko.length===0&&historyGyomu.length===0){alert('データがありません');return;}
   loadBasicInfo();
-  var appVer='ドラメモ v2.0.7';
+  var appVer='ドラメモ v2.0.8';
   var rows=['\uFEFF業務管理レポート'];
   rows.push('乗務員名,'+basicInfo.name);
   rows.push('車両番号,'+basicInfo.car);
