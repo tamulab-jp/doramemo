@@ -338,8 +338,8 @@ body{font-family:'Hiragino Sans',sans-serif;background:#f7f4f0;min-height:100vh;
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
 var todayStr='';
@@ -415,7 +415,7 @@ async function init(){
 
 // ===== 点呼 =====
 async function loadToday(){
-  var {data}=await sb.from('tenko_records').select('*').eq('user_id',userId).eq('date',todayStr);
+  var {data}=await sb.from('dm_tenko_records').select('*').eq('user_id',userId).eq('date',todayStr);
   // DBから最新データを取得してtenkoRecordsを更新
   tenkoRecords={
     before:data&&data.find(r=>r.tenko_type==='乗務前')||null,
@@ -423,7 +423,7 @@ async function loadToday(){
   };
 
   // 今日の業務記録
-  var {data:jobs}=await sb.from('gyomu_records').select('*').eq('user_id',userId).eq('date',todayStr).order('job_no');
+  var {data:jobs}=await sb.from('dm_gyomu_records').select('*').eq('user_id',userId).eq('date',todayStr).order('job_no');
   todayJobs=jobs||[];
 
   updateUI();
@@ -585,11 +585,11 @@ async function submitTenko(type){
 
   var error;
   if(existing){
-    var r=await sb.from('tenko_records').update(record).eq('id',existing.id);
+    var r=await sb.from('dm_tenko_records').update(record).eq('id',existing.id);
     error=r.error;
   } else {
     record.user_id=userId;record.date=todayStr;
-    var r2=await sb.from('tenko_records').insert(record);
+    var r2=await sb.from('dm_tenko_records').insert(record);
     error=r2.error;
   }
 
@@ -738,7 +738,7 @@ function updateDist(id){
 
 async function addJob(){
   var nextNo=(todayJobs.length>0?Math.max.apply(null,todayJobs.map(function(j){return j.job_no;})):0)+1;
-  var {data,error}=await sb.from('gyomu_records').insert({user_id:userId,date:todayStr,job_no:nextNo}).select().single();
+  var {data,error}=await sb.from('dm_gyomu_records').insert({user_id:userId,date:todayStr,job_no:nextNo}).select().single();
   if(error){showMsg(document.getElementById('msg-work'),'エラー: '+error.message,'err');return;}
   todayJobs.push(data);
   renderJobs();
@@ -766,7 +766,7 @@ async function saveJob(id){
   if(jn) saveJobNameHistory(jn);
 
   var updates={job_name:jn||null,start_place:sp||null,start_time:st||null,start_meter:smStr?parseInt(smStr):null,end_place:ep||null,end_time:et||null,end_meter:emStr?parseInt(emStr):null,next_day:nd,memo:memo||null};
-  var {error}=await sb.from('gyomu_records').update(updates).eq('id',id);
+  var {error}=await sb.from('dm_gyomu_records').update(updates).eq('id',id);
   if(error){showMsg(document.getElementById('msg-work'),'エラー: '+error.message,'err');return;}
   Object.assign(job,updates);
   renderJobs();
@@ -776,7 +776,7 @@ async function saveJob(id){
 
 async function deleteJob(id){
   if(!confirm('この案件を削除しますか？')) return;
-  await sb.from('gyomu_records').delete().eq('id',id);
+  await sb.from('dm_gyomu_records').delete().eq('id',id);
   todayJobs=todayJobs.filter(function(j){return j.id!==id;});
   todayJobs.forEach(function(j,i){j.job_no=i+1;});
   renderJobs();
@@ -785,8 +785,8 @@ async function deleteJob(id){
 
 // ===== 履歴 =====
 async function loadHistory(){
-  var {data:tenko}=await sb.from('tenko_records').select('*').eq('user_id',userId).order('date',{ascending:false}).limit(60);
-  var {data:gyomu}=await sb.from('gyomu_records').select('*').eq('user_id',userId).order('date',{ascending:false}).order('job_no');
+  var {data:tenko}=await sb.from('dm_tenko_records').select('*').eq('user_id',userId).order('date',{ascending:false}).limit(60);
+  var {data:gyomu}=await sb.from('dm_gyomu_records').select('*').eq('user_id',userId).order('date',{ascending:false}).order('job_no');
   historyTenko=tenko||[];
   historyGyomu=gyomu||[];
   renderHistory();

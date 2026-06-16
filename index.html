@@ -59,8 +59,8 @@ input:focus{border-color:#f59e0b}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
 var sb=window.supabase.createClient(SURL,SKEY);
 var isUp=false;
 
@@ -106,7 +106,7 @@ async function handleAuth(){
     if(!name){showMsg('氏名を入力してください','err');btn.disabled=false;return;}
     var {data,error}=await sb.auth.signUp({email:em,password:pw});
     if(error){showMsg(error.message,'err');btn.disabled=false;return;}
-    await sb.from('user_profiles').insert({id:data.user.id,name:name});
+    await sb.from('dm_user_profiles').insert({id:data.user.id,name:name});
     await sb.from('user_settings').insert({user_id:data.user.id,feature_tenko:true});
     showMsg('登録完了！ログインしてください。','ok');
   } else {

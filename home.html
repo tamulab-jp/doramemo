@@ -104,12 +104,7 @@ input:checked+.slider:before{transform:translateX(20px)}
   <div class="modal">
     <h2>⚙️ 使う機能を選ぶ</h2>
     <div class="toggle-row">
-      <div><div class="toggle-label">📋 点呼記録</div><div class="toggle-desc">毎日の点呼を記録</div></div>
-      <label class="switch"><input type="checkbox" id="s-tenko"><span class="slider"></span></label>
-    </div>
-
-    <div class="toggle-row">
-      <div><div class="toggle-label">📝 業務記録</div><div class="toggle-desc">案件ごとの業務を記録</div></div>
+      <div><div class="toggle-label">🚚 業務管理</div><div class="toggle-desc">点呼・業務記録を一括管理</div></div>
       <label class="switch"><input type="checkbox" id="s-gyomu"><span class="slider"></span></label>
     </div>
     <div class="toggle-row">
@@ -123,8 +118,8 @@ input:checked+.slider:before{transform:translateX(20px)}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
 var sb=window.supabase.createClient(SURL,SKEY);
 var userId=null;
 
@@ -142,14 +137,14 @@ async function init(){
   var {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='index.html';return;}
   userId=session.user.id;
-  var {data:profile}=await sb.from('user_profiles').select('name').eq('id',userId).single();
+  var {data:profile}=await sb.from('dm_user_profiles').select('name').eq('id',userId).single();
   document.getElementById('user-name').textContent=profile?.name||session.user.email||'';
   loadAdminContents();
   renderFeatures();
 }
 
 async function loadAdminContents(){
-  var {data:contents}=await sb.from('admin_contents').select('*').eq('is_active',true).order('sort_order');
+  var {data:contents}=await sb.from('dm_admin_contents').select('*').eq('is_active',true).order('sort_order');
   if(!contents||contents.length===0) return;
   var notices=contents.filter(c=>c.type==='notice');
   var ads=contents.filter(c=>c.type==='ad');
@@ -227,6 +222,6 @@ if('serviceWorker' in navigator){
 }
 </script>
 
-<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.5</div>
+<div style="text-align:center;padding:1.5rem 0 2rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.6</div>
 </body>
 </html>

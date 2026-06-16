@@ -179,8 +179,8 @@ body{font-family:'Hiragino Sans',sans-serif;background:#0a1628;min-height:100vh;
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var SURL='https://atezlxzzsfmabmkigqpg.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0ZXpseHp6c2ZtYWJta2lncXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTgzMTgsImV4cCI6MjA5NTY3NDMxOH0.uN-517Q9wXyu7_MPzcOn6TfLBsEwnMThy65BUlfBEr4';
+var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
 var sb=window.supabase.createClient(SURL,SKEY);
 var ADMIN_EMAIL='tamulab.jp@gmail.com';
 
@@ -220,8 +220,8 @@ async function adminLogout(){
 
 async function loadUsers(){
   try{
-  var {data:profiles}=await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
-  var {data:tenkoList}=await sb.from('tenko_records').select('user_id,date').order('date',{ascending:false});
+  var {data:profiles}=await sb.from('dm_user_profiles').select('*').order('created_at',{ascending:false});
+  var {data:tenkoList}=await sb.from('dm_tenko_records').select('user_id,date').order('date',{ascending:false});
   var el=document.getElementById('users-list');
   if(!profiles||profiles.length===0){el.innerHTML='<div class="empty">ユーザーがいません</div>';return;}
   var rows=profiles.map(p=>{
@@ -243,8 +243,8 @@ async function loadUsers(){
 
 async function loadStats(){
   try{
-  var {data:profiles}=await sb.from('user_profiles').select('id');
-  var {data:contents}=await sb.from('admin_contents').select('id,is_active');
+  var {data:profiles}=await sb.from('dm_user_profiles').select('id');
+  var {data:contents}=await sb.from('dm_admin_contents').select('id,is_active');
   var total=profiles?profiles.length:0;
   var cont=contents?contents.length:0;
   var active=contents?contents.filter(c=>c.is_active).length:0;
@@ -255,7 +255,7 @@ async function loadStats(){
 
 async function loadContents(){
   try{
-  var {data}=await sb.from('admin_contents').select('*').order('sort_order').order('created_at',{ascending:false});
+  var {data}=await sb.from('dm_admin_contents').select('*').order('sort_order').order('created_at',{ascending:false});
   var el=document.getElementById('contents-list');
   if(!data||data.length===0){el.innerHTML='<div class="empty">コンテンツがありません。「＋ 追加」から作成してください。</div>';return;}
   el.innerHTML=data.map(c=>`
@@ -312,10 +312,10 @@ async function saveContent(){
   if(!data.title){msg.textContent='タイトルを入力してください';return;}
   var error;
   if(id){
-    var res=await sb.from('admin_contents').update(data).eq('id',id);
+    var res=await sb.from('dm_admin_contents').update(data).eq('id',id);
     error=res.error;
   } else {
-    var res2=await sb.from('admin_contents').insert(data);
+    var res2=await sb.from('dm_admin_contents').insert(data);
     error=res2.error;
   }
   if(error){msg.textContent='エラー: '+error.message;return;}
@@ -326,7 +326,7 @@ async function saveContent(){
 
 async function deleteContent(id){
   if(!confirm('削除しますか？')){return;}
-  await sb.from('admin_contents').delete().eq('id',id);
+  await sb.from('dm_admin_contents').delete().eq('id',id);
   loadContents();
   loadStats();
 }
