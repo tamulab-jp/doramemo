@@ -52,12 +52,12 @@ input:focus{border-color:#f59e0b}
 <div class="msg" id="msg" style="display:none"></div>
 <div class="toggle" id="tgl" onclick="toggleMode()">アカウントを新規作成</div>
 <div class="reset" onclick="window.location.href='reset.html'">パスワードをお忘れの方</div>
-<div style="text-align:center;margin-top:1.25rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.0</div>
+<div style="text-align:center;margin-top:1.25rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.1</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
+var SKEY='SUPABASE_KEY';
 var sb=window.supabase.createClient(SURL,SKEY);
 var isUp=false;
 
@@ -78,13 +78,56 @@ async function isServiceStopped(){
   }
 }
 
+// === ユーザー個人の課金状態チェック ===
+// dm_user_profiles.status / trial_ends_at を見て、ブロックすべきか判定する。
+// 戻り値: null（ブロックしない・通す） または {message:'案内文'}（ブロックする）
+async function checkUserStatus(userId){
+  try{
+    var {data,error}=await sb.from('dm_user_profiles').select('status,trial_ends_at').eq('id',userId).single();
+    if(error||!data){
+      // 読み取り失敗時は締め出し事故を防ぐため通す
+      console.log('user status check skipped:', error&&error.message);
+      return null;
+    }
+    if(data.status==='expired'){
+      return {message:'ご利用期間が終了しました'};
+    }
+    if(data.status==='trial'){
+      if(data.trial_ends_at && new Date(data.trial_ends_at).getTime() < Date.now()){
+        return {message:'お試し期間が終了しました。継続には契約が必要です'};
+      }
+      return null; // trial中かつ期限内
+    }
+    // active、または未知の値は通す
+    return null;
+  }catch(e){
+    console.log('user status check error:', e);
+    return null;
+  }
+}
+
+// === 二段構えのアクセス判定 ===
+// ①アプリ全体の停止チェック → ②個人の課金状態チェック の順で行う。
+// ブロックする場合は signOut させ、案内メッセージを返す。ブロックしない場合は null を返す。
+async function checkAccess(userId){
+  if(await isServiceStopped()){
+    return 'ただいまサービスを一時停止しています。再開までしばらくお待ちください。';
+  }
+  var userBlock=await checkUserStatus(userId);
+  if(userBlock){
+    return userBlock.message;
+  }
+  return null;
+}
+
 async function init(){
 // URLのハッシュにaccess_tokenがある場合（メール確認後のリダイレクト）
 var hash=window.location.hash;
 if(hash&&hash.includes('access_token')){
 var {data:{session},error}=await sb.auth.getSession();
 if(session){
-if(await isServiceStopped()){await sb.auth.signOut();showMsg('ただいまサービスを一時停止しています。再開までしばらくお待ちください。','warn');return;}
+var blockMsg=await checkAccess(session.user.id);
+if(blockMsg){await sb.auth.signOut();showMsg(blockMsg,'warn');return;}
 window.location.href='home.html';
 return;
 }
@@ -92,7 +135,8 @@ return;
 setTimeout(async function(){
 var {data:{session:s2}}=await sb.auth.getSession();
 if(s2){
-if(await isServiceStopped()){await sb.auth.signOut();showMsg('ただいまサービスを一時停止しています。再開までしばらくお待ちください。','warn');return;}
+var blockMsg2=await checkAccess(s2.user.id);
+if(blockMsg2){await sb.auth.signOut();showMsg(blockMsg2,'warn');return;}
 window.location.href='home.html';
 }
 else showMsg('メール確認が完了しました。ログインしてください。','ok');
@@ -101,7 +145,8 @@ return;
 }
 var {data:{session}}=await sb.auth.getSession();
 if(session){
-if(await isServiceStopped()){await sb.auth.signOut();showMsg('ただいまサービスを一時停止しています。再開までしばらくお待ちください。','warn');return;}
+var blockMsg3=await checkAccess(session.user.id);
+if(blockMsg3){await sb.auth.signOut();showMsg(blockMsg3,'warn');return;}
 window.location.href='home.html';
 }
 }
@@ -133,12 +178,13 @@ options:{data:{name:name}}
 if(error){showMsg(error.message,'err');btn.disabled=false;return;}
 showMsg('登録完了！ログインしてください。','ok');
 } else {
-var {error:e2}=await sb.auth.signInWithPassword({email:em,password:pw});
+var {data:signInData,error:e2}=await sb.auth.signInWithPassword({email:em,password:pw});
 if(e2){showMsg('メールまたはパスワードが違います','err');btn.disabled=false;return;}
-// ログイン成功後、停止中かどうかを確認
-if(await isServiceStopped()){
+// ログイン成功後、①アプリ全体の停止 → ②個人の課金状態 を順に確認
+var blockMsg4=await checkAccess(signInData.user.id);
+if(blockMsg4){
 await sb.auth.signOut();
-showMsg('ただいまサービスを一時停止しています。再開までしばらくお待ちください。','warn');
+showMsg(blockMsg4,'warn');
 btn.disabled=false;
 return;
 }
