@@ -32,6 +32,9 @@ input:focus{border-color:#f59e0b}
 
 /* パスワード再設定フォーム（リセットリンクから戻った時） */
 .new-pw-section{display:none}
+.pw-wrap{position:relative;display:flex;align-items:center}
+.pw-wrap input{flex:1;padding-right:2.5rem}
+.eye-btn{position:absolute;right:.6rem;background:none;border:none;cursor:pointer;font-size:1rem;color:#7a8a9e;padding:0;line-height:1}
 </style>
 </head>
 <body>
@@ -52,15 +55,21 @@ input:focus{border-color:#f59e0b}
     <div class="back" onclick="window.location.href='index.html'">← ログインに戻る</div>
   </div>
 
-  <div style="text-align:center;margin-top:1rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.3</div>
+  <div style="text-align:center;margin-top:1rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.4</div>
 
   <!-- ② 新しいパスワード設定フォーム（リセットリンクから来た時） -->
   <div id="new-pw-section" class="new-pw-section">
     <div class="desc">新しいパスワードを入力してください。</div>
     <label>新しいパスワード</label>
-    <input type="password" id="new-pw" placeholder="8文字以上">
+    <div class="pw-wrap">
+      <input type="password" id="new-pw" placeholder="8文字以上">
+      <button type="button" class="eye-btn" onclick="toggleEye('new-pw',this)">👁</button>
+    </div>
     <label>パスワード（確認）</label>
-    <input type="password" id="new-pw2" placeholder="もう一度入力">
+    <div class="pw-wrap">
+      <input type="password" id="new-pw2" placeholder="もう一度入力">
+      <button type="button" class="eye-btn" onclick="toggleEye('new-pw2',this)">👁</button>
+    </div>
     <button class="btn" id="update-btn" onclick="updatePassword()">パスワードを変更する</button>
     <div class="msg" id="update-msg" style="display:none"></div>
   </div>
