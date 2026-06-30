@@ -60,7 +60,13 @@ input:focus{border-color:#f59e0b}
 <div class="reset" onclick="window.location.href='reset.html'">パスワードをお忘れの方</div>
 <div style="text-align:center;margin-top:1.25rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.2</div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+function toggleEye(id, btn){
+  var el=document.getElementById(id);
+  if(el.type==='password'){el.type='text';btn.textContent='🙈';}
+  else{el.type='password';btn.textContent='👁';}
+}
+</script>
 <script>
 var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
 var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
