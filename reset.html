@@ -52,7 +52,7 @@ input:focus{border-color:#f59e0b}
     <div class="back" onclick="window.location.href='index.html'">← ログインに戻る</div>
   </div>
 
-  <div style="text-align:center;margin-top:1rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.2</div>
+  <div style="text-align:center;margin-top:1rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.1.3</div>
 
   <!-- ② 新しいパスワード設定フォーム（リセットリンクから来た時） -->
   <div id="new-pw-section" class="new-pw-section">
@@ -69,29 +69,20 @@ input:focus{border-color:#f59e0b}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 var SURL='https://hyvjvcdahahrznhujtaz.supabase.co';
-var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dmp2Y2RhaGFocnpuaHVqdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTE3MDcsImV4cCI6MjA5NTQyNzcwN30.Zdl8yaFH64xEbiEzi7v8dsd2iu3CKaH96TBNqigJZV4';
+var SKEY='SUPABASE_KEY';
 var sb=window.supabase.createClient(SURL,SKEY);
 
 async function init(){
-  // リセットリンクから来た場合（URLにtokenが含まれる）
-  var hash=window.location.hash;
-  if(hash&&hash.includes('type=recovery')){
-    document.getElementById('send-section').style.display='none';
-    document.getElementById('new-pw-section').style.display='block';
-    document.getElementById('page-sub').textContent='新しいパスワードを設定';
-    return;
-  }
-
-  // セッションのtype確認（Supabaseがセッションを自動で処理した場合）
-  var {data:{session}}=await sb.auth.getSession();
-  if(session&&session.user){
-    var params=new URLSearchParams(window.location.search);
-    if(params.get('type')==='recovery'||hash.includes('recovery')){
+  // Supabase JS v2: onAuthStateChangeでPASSWORD_RECOVERYイベントを待ち受ける
+  // これによりrecoveryトークンが正しくセッションに変換される
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'PASSWORD_RECOVERY'){
+      // recoveryセッションが確立されたらパスワード設定フォームを表示
       document.getElementById('send-section').style.display='none';
       document.getElementById('new-pw-section').style.display='block';
       document.getElementById('page-sub').textContent='新しいパスワードを設定';
     }
-  }
+  });
 }
 
 async function sendReset(){
