@@ -32,9 +32,6 @@ input:focus{border-color:#f59e0b}
 
 /* パスワード再設定フォーム（リセットリンクから戻った時） */
 .new-pw-section{display:none}
-.pw-wrap{position:relative;display:flex;align-items:center}
-.pw-wrap input{flex:1;padding-right:2.5rem}
-.eye-btn{position:absolute;right:.6rem;background:none;border:none;cursor:pointer;font-size:1rem;color:#7a8a9e;padding:0;line-height:1}
 </style>
 </head>
 <body>
@@ -61,25 +58,15 @@ input:focus{border-color:#f59e0b}
   <div id="new-pw-section" class="new-pw-section">
     <div class="desc">新しいパスワードを入力してください。</div>
     <label>新しいパスワード</label>
-    <div class="pw-wrap">
-      <input type="password" id="new-pw" placeholder="8文字以上">
-      <button type="button" class="eye-btn" onclick="toggleEye('new-pw',this)">👁</button>
-    </div>
+    <input type="password" id="new-pw" placeholder="8文字以上">
     <label>パスワード（確認）</label>
-    <div class="pw-wrap">
-      <input type="password" id="new-pw2" placeholder="もう一度入力">
-      <button type="button" class="eye-btn" onclick="toggleEye('new-pw2',this)">👁</button>
-    </div>
+    <input type="password" id="new-pw2" placeholder="もう一度入力">
     <button class="btn" id="update-btn" onclick="updatePassword()">パスワードを変更する</button>
     <div class="msg" id="update-msg" style="display:none"></div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-function toggleEye(id, btn){
-  var el=document.getElementById(id);
-  if(el.type==='password'){el.type='text';btn.textContent='🙈';}
-  else{el.type='password';btn.textContent='👁';}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">  else{el.type='password';btn.textContent='👁';}
 }
 </script>
 <script>

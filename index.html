@@ -31,9 +31,6 @@ input:focus{border-color:#f59e0b}
 .toggle{font-size:.82rem;color:#f59e0b;text-align:center;margin-top:1rem;cursor:pointer;font-weight:600}
 .reset{font-size:.78rem;color:#7a8a9e;text-align:center;margin-top:.5rem;cursor:pointer}
 .sf-new{display:none}
-.pw-wrap{position:relative;display:flex;align-items:center}
-.pw-wrap input{flex:1;padding-right:2.5rem}
-.eye-btn{position:absolute;right:.6rem;background:none;border:none;cursor:pointer;font-size:1rem;color:#7a8a9e;padding:0;line-height:1}
 </style>
 </head>
 <body>
@@ -50,21 +47,14 @@ input:focus{border-color:#f59e0b}
 <label>メールアドレス</label>
 <input type="email" id="em" placeholder="example@email.com">
 <label>パスワード</label>
-<div class="pw-wrap">
-  <input type="password" id="pw" placeholder="8文字以上">
-  <button type="button" class="eye-btn" onclick="toggleEye('pw',this)">👁</button>
-</div>
+<input type="password" id="pw" placeholder="8文字以上">
 <button class="btn" id="btn" onclick="handleAuth()">ログイン</button>
 <div class="msg" id="msg" style="display:none"></div>
 <div class="toggle" id="tgl" onclick="toggleMode()">アカウントを新規作成</div>
 <div class="reset" onclick="window.location.href='reset.html'">パスワードをお忘れの方</div>
 <div style="text-align:center;margin-top:1.25rem;font-size:.7rem;color:#b0bac8;">ドラメモ v1.2.2</div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-function toggleEye(id, btn){
-  var el=document.getElementById(id);
-  if(el.type==='password'){el.type='text';btn.textContent='🙈';}
-  else{el.type='password';btn.textContent='👁';}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">  else{el.type='password';btn.textContent='👁';}
 }
 </script>
 <script>
